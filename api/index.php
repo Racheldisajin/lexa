@@ -1,14 +1,29 @@
 <?php
 
 // Vercel serverless environment adjustments
-if (isset($_ENV['VERCEL'])) {
-    $_ENV['LOG_CHANNEL'] = 'stderr';
-    $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
-    $_ENV['SESSION_DRIVER'] = 'cookie';
+if (getenv('VERCEL')) {
+    putenv('LOG_CHANNEL=stderr');
+    putenv('VIEW_COMPILED_PATH=/tmp/views');
+    putenv('SESSION_DRIVER=cookie');
     
-    if (!is_dir($_ENV['VIEW_COMPILED_PATH'])) {
-        mkdir($_ENV['VIEW_COMPILED_PATH'], 0777, true);
+    $_ENV['LOG_CHANNEL'] = $_SERVER['LOG_CHANNEL'] = 'stderr';
+    $_ENV['VIEW_COMPILED_PATH'] = $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/views';
+    $_ENV['SESSION_DRIVER'] = $_SERVER['SESSION_DRIVER'] = 'cookie';
+    
+    if (!is_dir('/tmp/views')) {
+        mkdir('/tmp/views', 0777, true);
     }
+
+    // Copy SQLite database to /tmp so it's writable
+    $dbPath = __DIR__ . '/../database/database.sqlite';
+    $tmpDbPath = '/tmp/database.sqlite';
+    if (file_exists($dbPath) && !file_exists($tmpDbPath)) {
+        copy($dbPath, $tmpDbPath);
+        chmod($tmpDbPath, 0666);
+    }
+    
+    putenv('DB_DATABASE=' . $tmpDbPath);
+    $_ENV['DB_DATABASE'] = $_SERVER['DB_DATABASE'] = $tmpDbPath;
 }
 
 require __DIR__ . '/../public/index.php';
