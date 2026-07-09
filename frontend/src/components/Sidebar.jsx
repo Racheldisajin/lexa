@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
     House, 
@@ -15,7 +15,25 @@ import {
 } from '@phosphor-icons/react';
 
 export default function Sidebar({ currentTab, setCurrentTab, isOpen }) {
-    const { user, logout } = useAuth();
+    const { user, logout, switchAccount } = useAuth();
+    const [showSwitchDropdown, setShowSwitchDropdown] = useState(false);
+
+    const getSwitchableAccounts = () => {
+        const defaultAccounts = [
+            { name: 'Administrator', email: 'admin@lexa.com' },
+            { name: 'Rizky Pratama', email: 'user@lexa.com' },
+            { name: 'Rachel', email: 'rachel@lexa.com' }
+        ];
+        const registeredUsers = JSON.parse(localStorage.getItem('lexa_registered_users') || '[]');
+        const uniqueUsersMap = new Map();
+        [...defaultAccounts, ...registeredUsers].forEach(u => {
+            if (u.email) {
+                uniqueUsersMap.set(u.email.toLowerCase(), u);
+            }
+        });
+        const allUsers = Array.from(uniqueUsersMap.values());
+        return allUsers.filter(u => u.email.toLowerCase() !== user?.email?.toLowerCase());
+    };
 
     const menuItems = [
         { id: 'dashboard', name: 'Dashboard', icon: House },
@@ -76,8 +94,61 @@ export default function Sidebar({ currentTab, setCurrentTab, isOpen }) {
             </div>
 
             {/* User footer profile */}
-            <div className="p-4 bg-primary-950 shrink-0 mt-auto flex flex-col space-y-4">
-                <div className="flex items-center justify-between cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-colors">
+            <div className="p-4 bg-primary-950 shrink-0 mt-auto flex flex-col space-y-4 relative">
+                {showSwitchDropdown && (
+                    <>
+                        {/* Backdrop click-to-close */}
+                        <div 
+                            className="fixed inset-0 z-30 cursor-default"
+                            onClick={() => setShowSwitchDropdown(false)}
+                        />
+                        {/* Popover Dropdown */}
+                        <div className="absolute bottom-full left-4 right-4 mb-2 bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-2xl z-40 text-left space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-2 pt-1 font-outfit">Switch Account</h4>
+                            <div className="space-y-0.5 max-h-44 overflow-y-auto">
+                                {getSwitchableAccounts().map((acc) => (
+                                    <div 
+                                        key={acc.email}
+                                        onClick={() => {
+                                            switchAccount(acc.email);
+                                            setShowSwitchDropdown(false);
+                                        }}
+                                        className="flex items-center space-x-2.5 p-2 hover:bg-white/5 rounded-xl cursor-pointer transition-colors"
+                                    >
+                                        <img 
+                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=0D8ABC&color=fff&size=32`} 
+                                            alt={acc.name} 
+                                            className="w-7 h-7 rounded-full border border-slate-700"
+                                        />
+                                        <div className="truncate flex-1">
+                                            <h5 className="text-xs font-semibold text-white truncate">{acc.name}</h5>
+                                            <span className="text-[9px] text-slate-400 font-mono truncate block leading-none">{acc.email}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {getSwitchableAccounts().length === 0 && (
+                                    <p className="text-[10px] text-slate-500 p-2 italic">No other accounts active</p>
+                                )}
+                            </div>
+                            <div className="border-t border-slate-800 my-1 pt-1" />
+                            <button
+                                onClick={() => {
+                                    setShowSwitchDropdown(false);
+                                    logout();
+                                }}
+                                className="w-full flex items-center space-x-2 px-2 py-1.5 hover:bg-white/5 text-slate-400 hover:text-white rounded-xl text-xs transition-colors cursor-pointer text-left font-sans font-bold"
+                            >
+                                <span className="text-sm font-semibold">+</span>
+                                <span>Login to Another Account</span>
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                <div 
+                    onClick={() => setShowSwitchDropdown(!showSwitchDropdown)}
+                    className="flex items-center justify-between cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-colors"
+                >
                     <div className="flex items-center space-x-3">
                         <img 
                             src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=0D8ABC&color=fff`} 

@@ -109,8 +109,33 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const switchAccount = (email) => {
+        let targetUser = null;
+        if (email === 'admin@lexa.com') {
+            targetUser = { id: 1, name: 'Administrator', email: 'admin@lexa.com', role: 'admin', plan: 'enterprise' };
+        } else if (email === 'user@lexa.com') {
+            targetUser = { id: 2, name: 'Rizky Pratama', email: 'user@lexa.com', role: 'user', plan: 'free' };
+        } else if (email === 'rachel@lexa.com') {
+            targetUser = { id: 3, name: 'Rachel', email: 'rachel@lexa.com', role: 'user', plan: 'free' };
+        } else {
+            const storedUsers = JSON.parse(localStorage.getItem('lexa_registered_users') || '[]');
+            const existingUser = storedUsers.find(u => u.email === email);
+            if (existingUser) {
+                const { password, ...userSession } = existingUser;
+                targetUser = userSession;
+            }
+        }
+
+        if (targetUser) {
+            setUser(targetUser);
+            localStorage.setItem('lexa_user', JSON.stringify(targetUser));
+            return true;
+        }
+        return false;
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout, upgradePlan, updateUser }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, upgradePlan, updateUser, switchAccount }}>
             {children}
         </AuthContext.Provider>
     );
