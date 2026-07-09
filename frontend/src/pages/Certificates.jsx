@@ -22,24 +22,13 @@ export default function Certificates() {
     const fetchCertificates = () => {
         setLoading(true);
         setTimeout(() => {
-            setCertificates([
-                { 
-                    id: 1, 
-                    name: 'LEXA Root CA', 
-                    holder: 'Sistem Pusat LEXA',
-                    issued_at: '01 Jan 2026',
-                    valid_until: '01 Jan 2027', 
-                    status: 'valid' 
-                },
-                { 
-                    id: 2, 
-                    name: 'Sertifikat TTE Personal - Budi', 
-                    holder: 'Budi Santoso', 
-                    issued_at: '15 Mei 2026',
-                    valid_until: '15 Mei 2027', 
-                    status: 'valid' 
-                }
-            ]);
+            const stored = JSON.parse(localStorage.getItem('lexa_certificates') || 'null');
+            if (stored === null) {
+                localStorage.setItem('lexa_certificates', JSON.stringify([]));
+                setCertificates([]);
+            } else {
+                setCertificates(stored);
+            }
             setLoading(false);
         }, 500);
     };
@@ -67,7 +56,10 @@ export default function Certificates() {
                 status: 'valid'
             };
             
-            setCertificates(prev => [...prev, newCert]);
+            const stored = JSON.parse(localStorage.getItem('lexa_certificates') || '[]');
+            const updated = [...stored, newCert];
+            localStorage.setItem('lexa_certificates', JSON.stringify(updated));
+            setCertificates(updated);
             setSuccess('Sertifikat berhasil diterbitkan secara sah!');
             
             setTimeout(() => {
@@ -87,7 +79,10 @@ export default function Certificates() {
         if (!confirm('Apakah Anda yakin ingin mencabut/menghapus sertifikat ini?')) return;
         try {
             await new Promise(r => setTimeout(r, 500));
-            setCertificates(prev => prev.filter(c => c.id !== id));
+            const stored = JSON.parse(localStorage.getItem('lexa_certificates') || '[]');
+            const updated = stored.filter(c => c.id !== id);
+            localStorage.setItem('lexa_certificates', JSON.stringify(updated));
+            setCertificates(updated);
         } catch (err) {
             alert('Gagal mencabut sertifikat.');
         }

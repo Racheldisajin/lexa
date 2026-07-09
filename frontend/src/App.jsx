@@ -58,11 +58,8 @@ function DashboardLayout() {
         // Mock data fetch
         setTimeout(() => {
             let storedDocs = JSON.parse(localStorage.getItem('lexa_mock_docs') || 'null');
-            if (!storedDocs || storedDocs.length === 0) {
-                storedDocs = [
-                    { id: 1, title: 'Perjanjian Kerja Sama Vendor', type: 'Kontrak', status: 'signed', uploaded_by: { name: 'Budi Santoso', email: 'budi@lexa.com' }, target_signers: [{ email: 'admin@lexa.com', status: 'signed' }], target_signer_email: 'admin@lexa.com', date: '10 Mei 2026' },
-                    { id: 2, title: 'Surat Keputusan Direksi', type: 'SOP', status: 'pending', uploaded_by: { name: 'Administrator', email: 'admin@lexa.com' }, target_signers: [{ email: 'user@lexa.com', status: 'pending' }], target_signer_email: 'user@lexa.com', date: '12 Mei 2026' },
-                ];
+            if (storedDocs === null) {
+                storedDocs = [];
                 localStorage.setItem('lexa_mock_docs', JSON.stringify(storedDocs));
             }
 
@@ -84,14 +81,26 @@ function DashboardLayout() {
                 return d.target_signer_email?.toLowerCase() === user?.email?.toLowerCase();
             }).length;
             
+            const storedCerts = JSON.parse(localStorage.getItem('lexa_certificates') || '[]');
+            const certTotal = storedCerts.length;
+            const certValid = storedCerts.filter(c => c.status === 'valid').length;
+            const certExpired = storedCerts.filter(c => c.status === 'expired').length;
+            const certExpiringSoon = storedCerts.filter(c => c.status === 'expiring_soon' || c.status === 'expiring').length;
+
             const dynamicStats = {
                 documents: { total, signed, pending, draft, rejected, pendingForMe },
-                certificates: getMockStats().certificates // Keep cert stats static for now
+                certificates: {
+                    total: certTotal,
+                    valid: certValid,
+                    expired: certExpired,
+                    expiringSoon: certExpiringSoon,
+                    nextExpiry: storedCerts.find(c => c.status === 'valid')?.name || '-'
+                }
             };
             
             let storedActs = JSON.parse(localStorage.getItem('lexa_activities') || 'null');
-            if (!storedActs || storedActs.length === 0) {
-                storedActs = getMockActivities();
+            if (storedActs === null) {
+                storedActs = [];
                 localStorage.setItem('lexa_activities', JSON.stringify(storedActs));
             }
 

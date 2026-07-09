@@ -44,13 +44,10 @@ export default function Documents() {
     const fetchDocuments = () => {
         setLoading(true);
         setTimeout(() => {
-            // Load existing docs or initialize
+            // Load existing docs or initialize empty
             let storedDocs = JSON.parse(localStorage.getItem('lexa_mock_docs') || 'null');
-            if (!storedDocs) {
-                storedDocs = [
-                    { id: 1, title: 'Perjanjian Kerja Sama Vendor', type: 'Kontrak', status: 'signed', uploaded_by: { name: 'Budi Santoso', email: 'budi@lexa.com' }, target_signer_email: 'admin@lexa.com', date: '10 Mei 2026' },
-                    { id: 2, title: 'Surat Keputusan Direksi', type: 'SOP', status: 'pending', uploaded_by: { name: 'Administrator', email: 'admin@lexa.com' }, target_signer_email: 'user@lexa.com', date: '12 Mei 2026' },
-                ];
+            if (storedDocs === null) {
+                storedDocs = [];
                 localStorage.setItem('lexa_mock_docs', JSON.stringify(storedDocs));
             }
             // Sort by newest first
