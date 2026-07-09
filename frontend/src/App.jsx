@@ -76,7 +76,13 @@ function DashboardLayout() {
             const rejected = sortedDocs.filter(d => d.status === 'rejected').length;
             const total = sortedDocs.length;
             
-            const pendingForMe = sortedDocs.filter(d => d.status === 'pending' && d.target_signer_email === user?.email).length;
+            const pendingForMe = sortedDocs.filter(d => {
+                if (d.status !== 'pending') return false;
+                if (d.target_signers) {
+                    return d.target_signers.some(ts => ts.email?.toLowerCase() === user?.email?.toLowerCase() && ts.status === 'pending');
+                }
+                return d.target_signer_email?.toLowerCase() === user?.email?.toLowerCase();
+            }).length;
             
             const dynamicStats = {
                 documents: { total, signed, pending, draft, rejected, pendingForMe },

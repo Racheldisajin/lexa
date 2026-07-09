@@ -162,7 +162,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800 font-outfit flex items-center space-x-1.5">
-                        <span>Welcome back, {user?.name ? user.name.split(' ')[0] : 'Rizky'}!</span>
+                        <span>Welcome back, {user?.name ? user.name.split(' ')[0] : 'User'}!</span>
                         <span className="animate-bounce">👋</span>
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5 font-medium">Kelola dokumen, tanda tangan digital, dan sertifikat Anda dengan aman.</p>

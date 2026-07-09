@@ -15,10 +15,22 @@ export default function UsersAndRoles() {
     const fetchUsers = () => {
         setLoading(true);
         setTimeout(() => {
-            setUsers([
-                { id: 1, name: 'Budi Santoso', email: 'budi@lexa.com', role: 'admin', team: 'IT', status: 'active', last_login: new Date().toISOString() },
-                { id: 2, name: 'Siti Aminah', email: 'siti@lexa.com', role: 'member', team: 'Finance', status: 'active', last_login: new Date(Date.now() - 3600000).toISOString() }
-            ]);
+            const defaultUsers = [
+                { id: 1, name: 'Budi Santoso', email: 'budi@lexa.com', role: 'admin', team: 'IT', status: 'active', created_at: '2026-01-10T08:00:00.000Z', last_login: new Date().toISOString() },
+                { id: 2, name: 'Siti Aminah', email: 'siti@lexa.com', role: 'member', team: 'Finance', status: 'active', created_at: '2026-02-15T09:30:00.000Z', last_login: new Date(Date.now() - 3600000).toISOString() }
+            ];
+            const registeredUsers = JSON.parse(localStorage.getItem('lexa_registered_users') || '[]');
+            const formattedRegistered = registeredUsers.map((u, index) => ({
+                id: u.id || (100 + index),
+                name: u.name,
+                email: u.email,
+                role: u.role || 'member',
+                team: 'General',
+                status: 'active',
+                created_at: u.created_at || new Date().toISOString(),
+                last_login: new Date().toISOString()
+            }));
+            setUsers([...defaultUsers, ...formattedRegistered]);
             setLoading(false);
         }, 500);
     };
@@ -84,7 +96,7 @@ export default function UsersAndRoles() {
                                             </span>
                                         </td>
                                         <td class="px-4 py-4 text-xs text-slate-400 font-medium">
-                                            {new Date(userItem.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            {new Date(userItem.created_at || new Date()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                         </td>
                                     </tr>
                                 ))}

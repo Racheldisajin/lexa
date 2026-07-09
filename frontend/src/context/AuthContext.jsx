@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }) => {
             password,
             role: 'user',
             plan: 'free',
+            created_at: new Date().toISOString(),
         };
 
         storedUsers.push(newUser);

@@ -80,13 +80,15 @@ export default function Sidebar({ currentTab, setCurrentTab, isOpen }) {
                 <div className="flex items-center justify-between cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-colors">
                     <div className="flex items-center space-x-3">
                         <img 
-                            src="https://ui-avatars.com/api/?name=Rizky+Pratama&background=0D8ABC&color=fff" 
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=0D8ABC&color=fff`} 
                             alt="User" 
                             className="w-10 h-10 rounded-full border-2 border-slate-800"
                         />
                         <div className="truncate w-28">
-                            <h4 className="text-sm font-semibold text-white leading-tight truncate">Rizky Pratama</h4>
-                            <span className="text-[11px] text-slate-400 capitalize leading-none">Administrator</span>
+                            <h4 className="text-sm font-semibold text-white leading-tight truncate">{user?.name || 'User'}</h4>
+                            <span className="text-[11px] text-slate-400 capitalize leading-none">
+                                {user?.role === 'admin' ? 'Administrator' : 'Staff Member'}
+                            </span>
                         </div>
                     </div>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

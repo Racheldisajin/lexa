@@ -16,12 +16,17 @@ export default function AuditTrail() {
     const fetchActivities = () => {
         setLoading(true);
         setTimeout(() => {
-            setActivities([
-                { id: 1, action: 'signed', description: 'Budi menandatangani "Perjanjian Kerja Sama Vendor"', created_at: new Date().toISOString(), ip_address: '192.168.1.5' },
-                { id: 2, action: 'upload', description: 'Anda mengunggah "Surat Keputusan Direksi"', created_at: new Date(Date.now() - 3600000).toISOString(), ip_address: '10.0.0.4' },
-                { id: 3, action: 'system', description: 'Sistem memperbarui sertifikat root LEXA CA', created_at: new Date(Date.now() - 86400000).toISOString(), ip_address: '127.0.0.1' },
-                { id: 4, action: 'update', description: 'Rina mengubah peran "Admin" untuk tim Finance', created_at: new Date(Date.now() - 172800000).toISOString(), ip_address: '192.168.1.12' }
-            ]);
+            let storedActs = JSON.parse(localStorage.getItem('lexa_activities') || 'null');
+            if (!storedActs || storedActs.length === 0) {
+                storedActs = [
+                    { id: 1, action: 'signed', description: 'Budi menandatangani "Perjanjian Kerja Sama Vendor"', created_at: new Date().toISOString(), ip_address: '192.168.1.5' },
+                    { id: 2, action: 'upload', description: 'Anda mengunggah "Surat Keputusan Direksi"', created_at: new Date(Date.now() - 3600000).toISOString(), ip_address: '10.0.0.4' },
+                    { id: 3, action: 'system', description: 'Sistem memperbarui sertifikat root LEXA CA', created_at: new Date(Date.now() - 86400000).toISOString(), ip_address: '127.0.0.1' },
+                    { id: 4, action: 'update', description: 'Rina mengubah peran "Admin" untuk tim Finance', created_at: new Date(Date.now() - 172800000).toISOString(), ip_address: '192.168.1.12' }
+                ];
+                localStorage.setItem('lexa_activities', JSON.stringify(storedActs));
+            }
+            setActivities(storedActs);
             setLoading(false);
         }, 300);
     };
@@ -112,15 +117,15 @@ export default function AuditTrail() {
                                     <span className={`${style.badge} text-[0.65rem] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider`}>
                                         {style.label}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-medium">
-                                        {new Date(act.created_at).toLocaleString('id-ID', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })} WIB
-                                    </span>
+                                     <span className="text-xs text-slate-400 font-medium text-right">
+                                         {act.created_at ? `${new Date(act.created_at).toLocaleString('id-ID', {
+                                             day: 'numeric',
+                                             month: 'short',
+                                             year: 'numeric',
+                                             hour: '2-digit',
+                                             minute: '2-digit'
+                                         })} WIB` : `${act.date || 'Hari ini'}, ${act.time || ''}`}
+                                     </span>
                                 </div>
                             </div>
                         );

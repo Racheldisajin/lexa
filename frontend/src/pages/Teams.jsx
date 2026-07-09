@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { 
     UsersThree, 
     Plus, 
@@ -10,6 +11,7 @@ import {
 
 
 export default function Teams() {
+    const { user } = useAuth();
     const [teams, setTeams] = useState([]);
     const [users, setUsers] = useState([]);
     const [selectedTeam, setSelectedTeam] = useState(null);
@@ -31,18 +33,40 @@ export default function Teams() {
     const fetchData = () => {
         setLoading(true);
         setTimeout(() => {
-            setTeams([
-                { id: 1, name: 'IT Department', description: 'Tim IT', members: [{id: 1, name: 'Admin', role: 'admin'}] },
-                { id: 2, name: 'Finance', description: 'Tim Keuangan', members: [] }
-            ]);
-            setUsers([{ id: 1, name: 'Admin' }, { id: 2, name: 'Budi' }]);
+            const defaultUsers = [
+                { id: 1, name: 'Administrator', email: 'admin@lexa.com' },
+                { id: 2, name: 'Rizky Pratama', email: 'user@lexa.com' },
+                { id: 3, name: 'Budi Santoso', email: 'budi@lexa.com' }
+            ];
+            const registeredUsers = JSON.parse(localStorage.getItem('lexa_registered_users') || '[]');
+            const allUsers = [...defaultUsers, ...registeredUsers];
+            setUsers(allUsers);
+
+            let storedTeams = JSON.parse(localStorage.getItem('lexa_teams') || 'null');
+            if (!storedTeams) {
+                storedTeams = [
+                    { id: 1, name: 'IT Department', description: 'Tim IT', members: [{id: 1, name: 'Administrator', email: 'admin@lexa.com', pivot: {role: 'Leader'}}] },
+                    { id: 2, name: 'Finance', description: 'Tim Keuangan', members: [{id: 3, name: 'Budi Santoso', email: 'budi@lexa.com', pivot: {role: 'Leader'}}] }
+                ];
+                localStorage.setItem('lexa_teams', JSON.stringify(storedTeams));
+            }
+            setTeams(storedTeams);
+
+            // Refreshes the selectedTeam details
+            if (selectedTeam) {
+                const refreshed = storedTeams.find(t => t.id === selectedTeam.id);
+                if (refreshed) {
+                    setSelectedTeam(refreshed);
+                }
+            }
+
             setLoading(false);
         }, 500);
     };
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [user]);
 
     const handleCreateTeam = async (e) => {
         e.preventDefault();
@@ -51,16 +75,26 @@ export default function Teams() {
 
         try {
             await new Promise(r => setTimeout(r, 500));
+            const storedTeams = JSON.parse(localStorage.getItem('lexa_teams') || '[]');
+            const newTeam = {
+                id: Date.now(),
+                name: newTeamName,
+                description: newTeamDesc,
+                members: [{ id: user?.id || Date.now(), name: user?.name || 'User', email: user?.email || 'user@lexa.com', pivot: { role: 'Leader' } }]
+            };
+            storedTeams.push(newTeam);
+            localStorage.setItem('lexa_teams', JSON.stringify(storedTeams));
+
             setSuccess('Tim berhasil dibuat!');
             setNewTeamName('');
             setNewTeamDesc('');
-            await fetchData();
+            fetchData();
             setTimeout(() => {
                 setShowCreateModal(false);
                 setSuccess('');
             }, 1000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Gagal membuat tim.');
+            setError('Gagal membuat tim.');
         }
     };
 
@@ -68,6 +102,10 @@ export default function Teams() {
         if (!confirm('Apakah Anda yakin ingin menghapus tim ini beserta seluruh anggotanya?')) return;
         try {
             await new Promise(r => setTimeout(r, 500));
+            let storedTeams = JSON.parse(localStorage.getItem('lexa_teams') || '[]');
+            storedTeams = storedTeams.filter(t => t.id !== id);
+            localStorage.setItem('lexa_teams', JSON.stringify(storedTeams));
+
             setSelectedTeam(null);
             fetchData();
         } catch (err) {
@@ -82,15 +120,36 @@ export default function Teams() {
 
         try {
             await new Promise(r => setTimeout(r, 500));
+            const storedTeams = JSON.parse(localStorage.getItem('lexa_teams') || '[]');
+            const teamIndex = storedTeams.findIndex(t => t.id === selectedTeam.id);
+            if (teamIndex !== -1) {
+                const userToAdd = users.find(u => u.id === parseInt(selectedUserId));
+                if (userToAdd) {
+                    const isAlreadyMember = storedTeams[teamIndex].members.some(m => m.id === userToAdd.id);
+                    if (isAlreadyMember) {
+                        setError('User sudah terdaftar di tim ini.');
+                        return;
+                    }
+                    
+                    storedTeams[teamIndex].members.push({
+                        id: userToAdd.id,
+                        name: userToAdd.name,
+                        email: userToAdd.email,
+                        pivot: { role: memberRole }
+                    });
+                    localStorage.setItem('lexa_teams', JSON.stringify(storedTeams));
+                }
+            }
+
             setSuccess('Anggota berhasil ditambahkan ke tim!');
             setSelectedUserId('');
-            await fetchData();
+            fetchData();
             setTimeout(() => {
                 setShowAddMemberModal(false);
                 setSuccess('');
             }, 1000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Gagal menambahkan anggota.');
+            setError('Gagal menambahkan anggota.');
         }
     };
 
@@ -98,6 +157,12 @@ export default function Teams() {
         if (!confirm('Apakah Anda yakin ingin mengeluarkan anggota ini dari tim?')) return;
         try {
             await new Promise(r => setTimeout(r, 500));
+            const storedTeams = JSON.parse(localStorage.getItem('lexa_teams') || '[]');
+            const teamIndex = storedTeams.findIndex(t => t.id === selectedTeam.id);
+            if (teamIndex !== -1) {
+                storedTeams[teamIndex].members = storedTeams[teamIndex].members.filter(m => m.id !== userId);
+                localStorage.setItem('lexa_teams', JSON.stringify(storedTeams));
+            }
             fetchData();
         } catch (err) {
             alert('Gagal mengeluarkan anggota.');

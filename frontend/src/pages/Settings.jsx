@@ -49,6 +49,67 @@ export default function Settings() {
                 </div>
             )}
 
+            {/* Profile Settings */}
+            <div className="bg-white/80 backdrop-blur border border-slate-200/60 rounded-3xl p-6 space-y-6 font-sans shadow-sm">
+                <div className="border-b border-slate-100 pb-4">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-outfit">Profile Settings</h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Perbarui nama lengkap, email, dan peran Anda dalam perusahaan.</p>
+                </div>
+                
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+                    const role = formData.get('role');
+                    updateUser({ name, email, role });
+                    setStatus({ type: 'success', msg: 'Profil berhasil diperbarui!' });
+                    setTimeout(() => setStatus(null), 3000);
+                }} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1.5">Nama Lengkap</label>
+                            <input 
+                                type="text" 
+                                name="name"
+                                defaultValue={user?.name || ''}
+                                required
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500" 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1.5">Email Address</label>
+                            <input 
+                                type="email" 
+                                name="email"
+                                defaultValue={user?.email || ''}
+                                required
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500" 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1.5">Peran Sistem (Role)</label>
+                            <select 
+                                name="role"
+                                defaultValue={user?.role || 'user'}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                            >
+                                <option value="admin">Owner / Administrator</option>
+                                <option value="user">Staff Member</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="flex justify-end pt-2">
+                        <button 
+                            type="submit"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                        >
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <div className="bg-white/80 backdrop-blur border border-slate-200/60 rounded-3xl p-6 space-y-6 font-sans shadow-sm">
                 <div>
                     <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4 font-outfit">Certification Authority (CA) Integration</h4>
