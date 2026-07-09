@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import API_URL from './config';
 import Login from './pages/Login';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
@@ -57,7 +58,7 @@ function DashboardLayout() {
     const fetchDashboardData = async () => {
         try {
             // 1. Fetch Documents
-            const docsRes = await fetch('http://localhost:5000/api/documents');
+            const docsRes = await fetch(`${API_URL}/api/documents`);
             let sortedDocs = [];
             if (docsRes.ok) {
                 const docs = await docsRes.json();
@@ -80,7 +81,7 @@ function DashboardLayout() {
             }).length;
 
             // 2. Fetch Certificates
-            const certsRes = await fetch('http://localhost:5000/api/certificates');
+            const certsRes = await fetch(`${API_URL}/api/certificates`);
             let storedCerts = [];
             if (certsRes.ok) {
                 storedCerts = await certsRes.json();
@@ -102,7 +103,7 @@ function DashboardLayout() {
             };
 
             // 3. Fetch Activities
-            const actsRes = await fetch('http://localhost:5000/api/activities');
+            const actsRes = await fetch(`${API_URL}/api/activities`);
             let storedActs = [];
             if (actsRes.ok) {
                 const acts = await actsRes.json();

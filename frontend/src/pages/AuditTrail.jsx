@@ -7,6 +7,7 @@ import {
     ShieldCheck,
     Warning
 } from '@phosphor-icons/react';
+import API_URL from '../config';
 
 export default function AuditTrail() {
     const [activities, setActivities] = useState([]);
@@ -16,7 +17,7 @@ export default function AuditTrail() {
     const fetchActivities = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/activities');
+            const response = await fetch(`${API_URL}/api/activities`);
             if (response.ok) {
                 const data = await response.json();
                 const formatted = data.map(act => ({

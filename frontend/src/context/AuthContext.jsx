@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import API_URL from '../config';
 
 const AuthContext = createContext(null);
 
@@ -32,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password) => {
         try {
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
@@ -181,7 +182,7 @@ export const AuthProvider = ({ children }) => {
     const upgradePlan = async (newPlan) => {
         if (user) {
             try {
-                const response = await fetch('http://localhost:5000/api/auth/upgrade-plan', {
+                const response = await fetch(`${API_URL}/api/auth/upgrade-plan`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: user.email, plan: newPlan })
@@ -209,7 +210,7 @@ export const AuthProvider = ({ children }) => {
     const updateUser = async (updatedFields) => {
         if (user) {
             try {
-                const response = await fetch('http://localhost:5000/api/auth/user', {
+                const response = await fetch(`${API_URL}/api/auth/user`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: user.email, ...updatedFields })

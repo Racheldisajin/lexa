@@ -5,6 +5,7 @@ import {
     CheckCircle,
     Warning
 } from '@phosphor-icons/react';
+import API_URL from '../config';
 
 
 export default function UsersAndRoles() {
@@ -15,7 +16,7 @@ export default function UsersAndRoles() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/auth/users');
+            const response = await fetch(`${API_URL}/api/auth/users`);
             if (response.ok) {
                 const data = await response.json();
                 const formatted = data.map((u) => ({

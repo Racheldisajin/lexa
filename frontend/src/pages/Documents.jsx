@@ -13,6 +13,7 @@ import {
     Warning
 } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config';
 
 
 export default function Documents() {
@@ -44,7 +45,7 @@ export default function Documents() {
     const fetchDocuments = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/documents');
+            const response = await fetch(`${API_URL}/api/documents`);
             if (response.ok) {
                 const data = await response.json();
                 data.sort((a, b) => b.id - a.id);
@@ -62,7 +63,7 @@ export default function Documents() {
         
         const loadUsers = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/auth/users');
+                const response = await fetch(`${API_URL}/api/auth/users`);
                 if (response.ok) {
                     const data = await response.json();
                     const filtered = data.filter(u => u.email !== user?.email);
@@ -92,7 +93,7 @@ export default function Documents() {
         setUploading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/documents', {
+            const response = await fetch(`${API_URL}/api/documents`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -142,7 +143,7 @@ export default function Documents() {
     const handleDelete = async (id) => {
         if (!confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/documents/${id}`, {
+            const response = await fetch(`${API_URL}/api/documents/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config';
 import { 
     UsersThree, 
     Plus, 
@@ -40,14 +41,14 @@ export default function Teams() {
         setLoading(true);
         try {
             // Load users
-            const usersRes = await fetch('http://localhost:5000/api/auth/users');
+            const usersRes = await fetch(`${API_URL}/api/auth/users`);
             if (usersRes.ok) {
                 const allUsers = await usersRes.json();
                 setUsers(allUsers);
             }
 
             // Load teams
-            const teamsRes = await fetch('http://localhost:5000/api/teams');
+            const teamsRes = await fetch(`${API_URL}/api/teams`);
             if (teamsRes.ok) {
                 const storedTeams = await teamsRes.json();
                 setTeams(storedTeams);
@@ -77,7 +78,7 @@ export default function Teams() {
 
         try {
             const initialMembers = [{ id: user?.id || 1, name: user?.name || 'User', email: user?.email || 'user@lexa.com', pivot: { role: 'Leader' } }];
-            const response = await fetch('http://localhost:5000/api/teams', {
+            const response = await fetch(`${API_URL}/api/teams`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: newTeamName, members: initialMembers })
@@ -103,7 +104,7 @@ export default function Teams() {
     const handleDeleteTeam = async (id) => {
         if (!confirm('Apakah Anda yakin ingin menghapus tim ini beserta seluruh anggotanya?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/teams/${id}`, {
+            const response = await fetch(`${API_URL}/api/teams/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -141,7 +142,7 @@ export default function Teams() {
                     }
                 ];
 
-                const response = await fetch('http://localhost:5000/api/teams', {
+                const response = await fetch(`${API_URL}/api/teams`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: selectedTeam.id, name: selectedTeam.name, members: updatedMembers })
@@ -168,7 +169,7 @@ export default function Teams() {
         if (!confirm('Apakah Anda yakin ingin mengeluarkan anggota ini dari tim?')) return;
         try {
             const updatedMembers = selectedTeam.members.filter(m => m.id !== userId);
-            const response = await fetch('http://localhost:5000/api/teams', {
+            const response = await fetch(`${API_URL}/api/teams`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: selectedTeam.id, name: selectedTeam.name, members: updatedMembers })

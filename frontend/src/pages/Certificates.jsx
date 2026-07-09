@@ -4,6 +4,7 @@ import {
     Trash, 
     ShieldCheck
 } from '@phosphor-icons/react';
+import API_URL from '../config';
 
 
 export default function Certificates() {
@@ -22,7 +23,7 @@ export default function Certificates() {
     const fetchCertificates = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/certificates');
+            const response = await fetch(`${API_URL}/api/certificates`);
             if (response.ok) {
                 const data = await response.json();
                 setCertificates(data);
@@ -50,7 +51,7 @@ export default function Certificates() {
             const validityDays = validity.includes('90') ? 90 : validity.includes('2') ? 730 : 365;
             const nameVal = certSource === 'generate' ? certName : 'Sertifikat Eksternal (Upload)';
 
-            const response = await fetch('http://localhost:5000/api/certificates', {
+            const response = await fetch(`${API_URL}/api/certificates`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: nameVal, holder, validityDays })
@@ -79,7 +80,7 @@ export default function Certificates() {
     const handleDelete = async (id) => {
         if (!confirm('Apakah Anda yakin ingin mencabut/menghapus sertifikat ini?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/certificates/${id}`, {
+            const response = await fetch(`${API_URL}/api/certificates/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {

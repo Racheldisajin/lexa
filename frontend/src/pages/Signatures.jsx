@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config';
 import { 
     Signature, 
     Plus, 
@@ -34,7 +35,7 @@ export default function Signatures() {
         setLoading(true);
         try {
             // Load documents from backend
-            const docsRes = await fetch('http://localhost:5000/api/documents');
+            const docsRes = await fetch(`${API_URL}/api/documents`);
             if (docsRes.ok) {
                 const data = await docsRes.json();
                 setSignatures(data);
@@ -44,7 +45,7 @@ export default function Signatures() {
             }
 
             // Load users list
-            const usersRes = await fetch('http://localhost:5000/api/auth/users');
+            const usersRes = await fetch(`${API_URL}/api/auth/users`);
             if (usersRes.ok) {
                 const allUsers = await usersRes.json();
                 setUsers(allUsers.filter(u => u.email !== user?.email));
@@ -67,7 +68,7 @@ export default function Signatures() {
         setRequesting(true);
 
         try {
-            const response = await fetch(`http://localhost:5000/api/documents/${selectedDocId}/request-signer`, {
+            const response = await fetch(`${API_URL}/api/documents/${selectedDocId}/request-signer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: selectedSignerId })
@@ -76,7 +77,7 @@ export default function Signatures() {
             const data = await response.json();
             if (response.ok && data.success) {
                 // Log action to activities table
-                await fetch('http://localhost:5000/api/activities', {
+                await fetch(`${API_URL}/api/activities`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -190,7 +191,7 @@ export default function Signatures() {
         try {
             setLoading(true);
             
-            const response = await fetch(`http://localhost:5000/api/documents/${id}/sign`, {
+            const response = await fetch(`${API_URL}/api/documents/${id}/sign`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: user?.email })
@@ -199,7 +200,7 @@ export default function Signatures() {
             const data = await response.json();
             if (response.ok && data.success) {
                 // Log action to activities table
-                await fetch('http://localhost:5000/api/activities', {
+                await fetch(`${API_URL}/api/activities`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
