@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "npm run build --prefix frontend",
-        "dev": "concurrently \"npm run dev --prefix frontend\" \"nodemon backend/server.js\""
+        "dev": "concurrently \"npm run dev --prefix frontend\" \"node --watch backend/server.js\""
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
