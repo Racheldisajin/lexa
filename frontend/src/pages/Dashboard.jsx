@@ -154,11 +154,11 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
             {/* Top Welcome Title & Search Banner */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800 font-outfit flex items-center space-x-1.5">
+                    <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-950 font-outfit flex items-center space-x-1.5 tracking-tight">
                         <span>Welcome back, {user?.name ? user.name.split(' ')[0] : 'User'}!</span>
                         <span className="animate-bounce">👋</span>
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5 font-medium">Kelola dokumen, tanda tangan digital, dan sertifikat Anda dengan aman.</p>
+                    <p className="text-xs text-slate-500 mt-1 font-semibold">Kelola dokumen, tanda tangan digital, dan sertifikat Anda dengan aman.</p>
                 </div>
                 
                 {/* Search, Notifications & Button Section */}
@@ -214,8 +214,8 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 <div className="bg-white rounded-3xl p-6 relative overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-outfit">Total Documents</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900 mt-1 tracking-tight font-outfit">{docStats.total}</h3>
+                            <p className="text-[10px] font-extrabold tracking-widest text-slate-500 uppercase font-sans">Total Documents</p>
+                            <h3 className="text-4xl font-extrabold text-slate-950 mt-1 tracking-tight font-outfit">{docStats.total}</h3>
                         </div>
                         <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-all duration-300">
                             <FileText size={24} weight="bold" />
@@ -237,8 +237,8 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 <div className="bg-white rounded-3xl p-6 relative overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-outfit">Signed Documents</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900 mt-1 tracking-tight font-outfit">{docStats.signed}</h3>
+                            <p className="text-[10px] font-extrabold tracking-widest text-slate-500 uppercase font-sans">Signed Documents</p>
+                            <h3 className="text-4xl font-extrabold text-slate-950 mt-1 tracking-tight font-outfit">{docStats.signed}</h3>
                         </div>
                         <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-all duration-300">
                             <PencilSimple size={24} weight="bold" />
@@ -260,8 +260,8 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 <div className="bg-white rounded-3xl p-6 relative overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-outfit">Active Certificates</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900 mt-1 tracking-tight font-outfit">{certStats.total}</h3>
+                            <p className="text-[10px] font-extrabold tracking-widest text-slate-500 uppercase font-sans">Active Certificates</p>
+                            <h3 className="text-4xl font-extrabold text-slate-950 mt-1 tracking-tight font-outfit">{certStats.total}</h3>
                         </div>
                         <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl group-hover:scale-110 transition-all duration-300">
                             <Certificate size={24} weight="bold" />
@@ -283,8 +283,8 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 <div className="bg-white rounded-3xl p-6 relative overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-outfit">Expired Certificates</p>
-                            <h3 className="text-3xl font-extrabold text-slate-900 mt-1 tracking-tight font-outfit">{certStats.expired}</h3>
+                            <p className="text-[10px] font-extrabold tracking-widest text-slate-500 uppercase font-sans">Expired Certificates</p>
+                            <h3 className="text-4xl font-extrabold text-slate-950 mt-1 tracking-tight font-outfit">{certStats.expired}</h3>
                         </div>
                         <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl group-hover:scale-110 transition-all duration-300">
                             <Calendar size={24} weight="bold" />
@@ -303,12 +303,16 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 </div>
             </div>
 
-            {/* Charts & Quick Actions Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Documents Overview Card */}
-                <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+            {/* Main Content Grid: Left Column & Right Column */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans items-start">
+                
+                {/* Left Column: Charts, Documents Table & Audit Trail */}
+                <div className="lg:col-span-2 space-y-6">
+                    
+                    {/* Documents Overview Card */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-slate-800 font-outfit text-sm">Documents Overview</h3>
+                        <h3 className="text-[15px] font-bold text-slate-950 font-outfit">Documents Overview</h3>
                         <select 
                             value={timeFilter} 
                             onChange={(e) => setTimeFilter(e.target.value)}
@@ -322,14 +326,15 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                     </div>
                     
                     {/* Split View: Donut and Line chart */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center font-sans">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center font-sans mt-2">
+                        
                         {/* Left Side: Donut Chart with stack legend */}
-                        <div className="flex items-center space-x-6">
-                            <div className="relative w-36 h-36 shrink-0">
+                        <div className="flex items-center justify-center space-x-6 h-full max-w-md mx-auto w-full">
+                            <div className="relative w-36 h-36 flex-shrink-0">
                                 <Doughnut data={donutData} options={donutOptions} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-2xl font-black text-slate-800 font-outfit">{docStats.total}</span>
-                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total</span>
+                                    <span className="text-3xl font-extrabold text-slate-950 font-outfit">{docStats.total}</span>
+                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total</span>
                                 </div>
                             </div>
                             
@@ -337,114 +342,55 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-blue-600 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Signed</span>
+                                        <span className="text-slate-600 font-semibold text-xs">Signed</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{docStats.signed} ({docPercentages.signed}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{docStats.signed} ({docPercentages.signed}%)</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Pending</span>
+                                        <span className="text-slate-600 font-semibold text-xs">Pending</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{docStats.pending} ({docPercentages.pending}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{docStats.pending} ({docPercentages.pending}%)</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Draft</span>
+                                        <span className="text-slate-600 font-semibold text-xs">Draft</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{docStats.draft} ({docPercentages.draft}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{docStats.draft} ({docPercentages.draft}%)</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-red-500 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Rejected</span>
+                                        <span className="text-slate-600 font-semibold text-xs">Rejected</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{docStats.rejected} ({docPercentages.rejected}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{docStats.rejected} ({docPercentages.rejected}%)</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Right Side: Line Chart (Document Status) */}
-                        <div className="h-44 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8">
-                            <h4 className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Document Status</h4>
+                        <div className="h-52 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8">
+                            <h4 className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider mb-2">Document Status</h4>
                             <div className="flex-1 relative">
                                 <Line data={lineData} options={lineOptions} />
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <h3 className="font-bold text-slate-800 font-outfit mb-4 text-sm">Quick Actions</h3>
-                    <div className="flex flex-col space-y-3 flex-1">
-                        <button onClick={() => onNavigateToTab('documents')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-3 rounded-2xl flex items-center space-x-3 transition-all group cursor-pointer text-left">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-105 transition-transform">
-                                <UploadSimple size={20} weight="bold" />
-                            </div>
-                            <div>
-                                <span className="text-xs font-bold text-slate-800 block">Upload Document</span>
-                                <span className="text-[9px] text-slate-500">Unggah dokumen baru</span>
-                            </div>
-                        </button>
-
-                        <button onClick={() => onNavigateToTab('signatures')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-3 rounded-2xl flex items-center space-x-3 transition-all group cursor-pointer text-left">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-105 transition-transform">
-                                <Pencil size={20} weight="bold" />
-                            </div>
-                            <div>
-                                <span className="text-xs font-bold text-slate-800 block">Request Signature</span>
-                                <span className="text-[9px] text-slate-500">Minta tanda tangan</span>
-                            </div>
-                        </button>
-
-                        <button onClick={() => onNavigateToTab('templates')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-3 rounded-2xl flex items-center space-x-3 transition-all group cursor-pointer text-left">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-105 transition-transform">
-                                <Layout size={20} weight="bold" />
-                            </div>
-                            <div>
-                                <span className="text-xs font-bold text-slate-800 block">Create Template</span>
-                                <span className="text-[9px] text-slate-500">Buat template dokumen</span>
-                            </div>
-                        </button>
-
-                        <button onClick={() => onNavigateToTab('certificates')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-3 rounded-2xl flex items-center space-x-3 transition-all group cursor-pointer text-left">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-105 transition-transform">
-                                <Certificate size={20} weight="bold" />
-                            </div>
-                            <div>
-                                <span className="text-xs font-bold text-slate-800 block">Create Certificate</span>
-                                <span className="text-[9px] text-slate-500">Buat sertifikat baru</span>
-                            </div>
-                        </button>
-
-                        <button onClick={() => onNavigateToTab('documents')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-3 rounded-2xl flex items-center space-x-3 transition-all group cursor-pointer text-left">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-105 transition-transform">
-                                <ShieldCheck size={20} weight="bold" />
-                            </div>
-                            <div>
-                                <span className="text-xs font-bold text-slate-800 block">Verify Document</span>
-                                <span className="text-[9px] text-slate-500">Verifikasi keaslian dokumen</span>
-                            </div>
-                        </button>
                     </div>
-                </div>
-            </div>
-
-            {/* Middle Section: Recent Documents Table & Side Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">
-                {/* Recent Documents Table */}
-                <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                    
+                    {/* Recent Documents Table */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-slate-800 font-outfit text-sm">Recent Documents</h3>
+                        <h3 className="text-[15px] font-bold text-slate-950 font-outfit">Recent Documents</h3>
                         <button onClick={() => onNavigateToTab('documents')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">View All</button>
                     </div>
                     
                     <div className="overflow-x-auto lg:overflow-visible">
                         <table className="w-full text-xs text-left border-collapse">
                             <thead>
-                                <tr className="text-[10px] text-slate-400 border-b border-slate-100 uppercase tracking-wider font-semibold">
+                                <tr className="text-[10px] text-slate-500 border-b border-slate-100 uppercase tracking-wider font-bold">
                                     <th className="pb-3 text-left">Document Name</th>
                                     <th className="pb-3 text-left">Status</th>
                                     <th className="pb-3 text-left">Signers</th>
@@ -486,9 +432,9 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                         <div className={`p-2 rounded-xl ${typeBg}`}>
                                                             <FileText size={18} weight="bold" />
                                                         </div>
-                                                        <div className="truncate max-w-50">
-                                                            <span className="font-bold text-slate-850 block truncate">{doc.title}</span>
-                                                            <span className="text-[9px] text-slate-400 font-medium">{subtitle}</span>
+                                                        <div className="truncate max-w-[200px]">
+                                                            <span className="font-bold text-slate-950 block truncate text-[13px]">{doc.title}</span>
+                                                            <span className="text-[10px] text-slate-500 font-semibold">{subtitle}</span>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -521,8 +467,8 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                     )}
                                                 </td>
                                                 <td className="py-4">
-                                                    <span className="font-semibold text-slate-700 block">{doc.date || 'Hari ini'}</span>
-                                                    <span className="text-[9px] text-slate-400 font-medium">{doc.time || '10:30 WIB'}</span>
+                                                    <span className="font-bold text-slate-800 block text-xs">{doc.date || 'Hari ini'}</span>
+                                                    <span className="text-[10px] text-slate-500 font-semibold">{doc.time || '10:30 WIB'}</span>
                                                 </td>
                                                 <td className="py-4 text-center relative">
                                                     <div className="flex items-center justify-center space-x-1">
@@ -564,7 +510,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                                             setActiveDropdown(null);
                                                                             alert(`Mengunduh dokumen: ${doc.title}`);
                                                                         }}
-                                                                        className="w-full px-3 py-1.5 text-[11px] text-slate-650 hover:bg-slate-50 flex items-center space-x-2 font-medium transition-colors cursor-pointer"
+                                                                        className="w-full px-3 py-1.5 text-[11px] text-slate-600 hover:bg-slate-50 flex items-center space-x-2 font-medium transition-colors cursor-pointer"
                                                                     >
                                                                         <DownloadSimple size={13} />
                                                                         <span>Unduh PDF</span>
@@ -574,7 +520,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                                             setActiveDropdown(null);
                                                                             onNavigateToTab(doc.status === 'pending' ? 'signatures' : 'documents');
                                                                         }}
-                                                                        className="w-full px-3 py-1.5 text-[11px] text-slate-650 hover:bg-slate-50 flex items-center space-x-2 font-medium transition-colors cursor-pointer"
+                                                                        className="w-full px-3 py-1.5 text-[11px] text-slate-600 hover:bg-slate-50 flex items-center space-x-2 font-medium transition-colors cursor-pointer"
                                                                     >
                                                                         <Eye size={13} />
                                                                         <span>Tinjau</span>
@@ -609,15 +555,148 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                 )}
                             </tbody>
                         </table>
+                        </div>
                     </div>
+
+                    {/* Audit Trail Card */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm font-sans">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                            <h3 className="text-[15px] font-bold text-slate-950 font-outfit">Audit Trail</h3>
+                            <button onClick={() => onNavigateToTab('audit')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">View All</button>
+                        </div>
+                        
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
+                                        <th className="pb-3 text-left">Activity / User Action</th>
+                                        <th className="pb-3 text-left">Status</th>
+                                        <th className="pb-3 text-left">Time & Date</th>
+                                        <th className="pb-3 text-right">IP Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {activities && activities.length > 0 ? (
+                                        activities.map((act, idx) => {
+                                            let iconBg = 'bg-blue-50 text-blue-600';
+                                            let Icon = UploadSimple;
+                                            let statusBadge = 'bg-blue-50 text-blue-600 border border-blue-100/50';
+                                            let badgeLabel = 'Upload';
+
+                                            if (act.action === 'signed') {
+                                                iconBg = 'bg-emerald-50 text-emerald-600';
+                                                Icon = PencilSimple;
+                                                statusBadge = 'bg-emerald-50 text-emerald-600 border border-emerald-100/50';
+                                                badgeLabel = 'Signed';
+                                            } else if (act.action === 'update') {
+                                                iconBg = 'bg-purple-50 text-purple-600';
+                                                Icon = Pencil;
+                                                statusBadge = 'bg-purple-50 text-purple-600 border border-purple-100/50';
+                                                badgeLabel = 'Update';
+                                            } else if (act.action === 'system') {
+                                                iconBg = 'bg-slate-50 text-slate-600';
+                                                Icon = ShieldCheck;
+                                                statusBadge = 'bg-slate-100 text-slate-500 border border-slate-200';
+                                                badgeLabel = 'System';
+                                            }
+
+                                            return (
+                                                <tr key={act.id || idx} className="hover:bg-slate-50/50 transition-colors">
+                                                    <td className="py-3">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className={`p-1.5 rounded-lg ${iconBg}`}>
+                                                                <Icon size={14} weight="bold" />
+                                                            </div>
+                                                            <span className="font-bold text-slate-950 text-[13px]">{act.description}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3">
+                                                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${statusBadge}`}>{badgeLabel}</span>
+                                                    </td>
+                                                    <td className="py-3 font-bold text-slate-800 text-xs">{act.time}</td>
+                                                    <td className="py-3 text-right font-semibold text-slate-600">{act.ip || '103.123.45.' + (67 + idx)}</td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" className="py-6 text-center text-slate-400 font-medium">
+                                                Tidak ada aktivitas audit.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
 
-                {/* Side Cards: Certificate Overview & Recent Activity */}
-                <div className="space-y-6 flex flex-col justify-between">
+                {/* Right Column: Quick Actions, Certificate Overview & Recent Activity */}
+                <div className="lg:col-span-1 space-y-6">
+                    
+                    {/* Quick Actions */}
+                    <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <h3 className="text-[15px] font-bold text-slate-950 font-outfit mb-4">Quick Actions</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            
+                            <button onClick={() => onNavigateToTab('documents')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-2 rounded-xl flex items-center space-x-2 transition-all group cursor-pointer text-left">
+                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-105 transition-transform">
+                                    <UploadSimple size={16} weight="bold" />
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="text-[11px] font-bold text-slate-800 block">Upload Document</span>
+                                    <span className="text-[9px] text-slate-400 block">Unggah dokumen baru</span>
+                                </div>
+                            </button>
+
+                            <button onClick={() => onNavigateToTab('signatures')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-2 rounded-xl flex items-center space-x-2 transition-all group cursor-pointer text-left">
+                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-105 transition-transform">
+                                    <Pencil size={16} weight="bold" />
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="text-[11px] font-bold text-slate-800 block">Request Signature</span>
+                                    <span className="text-[9px] text-slate-400 block">Minta tanda tangan</span>
+                                </div>
+                            </button>
+
+                            <button onClick={() => onNavigateToTab('templates')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-2 rounded-xl flex items-center space-x-2 transition-all group cursor-pointer text-left">
+                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-105 transition-transform">
+                                    <Layout size={16} weight="bold" />
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="text-[11px] font-bold text-slate-800 block">Create Template</span>
+                                    <span className="text-[9px] text-slate-400 block">Buat template dokumen</span>
+                                </div>
+                            </button>
+
+                            <button onClick={() => onNavigateToTab('certificates')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-2 rounded-xl flex items-center space-x-2 transition-all group cursor-pointer text-left">
+                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-105 transition-transform">
+                                    <Certificate size={16} weight="bold" />
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="text-[11px] font-bold text-slate-800 block">Create Certificate</span>
+                                    <span className="text-[9px] text-slate-400 block">Buat sertifikat baru</span>
+                                </div>
+                            </button>
+
+                            <button onClick={() => onNavigateToTab('documents')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-2 rounded-xl flex items-center space-x-2 transition-all group cursor-pointer text-left sm:col-span-2">
+                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-105 transition-transform">
+                                    <ShieldCheck size={16} weight="bold" />
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="text-[11px] font-bold text-slate-800 block">Verify Document</span>
+                                    <span className="text-[9px] text-slate-400 block">Verifikasi keaslian dokumen</span>
+                                </div>
+                            </button>
+
+                        </div>
+                    </div>
+                    
                     {/* Certificate Overview Card */}
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-slate-800 font-outfit text-sm">Certificate Overview</h3>
+                            <h3 className="text-[15px] font-bold text-slate-950 font-outfit">Certificate Overview</h3>
                             <button onClick={() => onNavigateToTab('certificates')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">View All</button>
                         </div>
                         
@@ -625,8 +704,8 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                             <div className="relative w-20 h-20 shrink-0">
                                 <Doughnut data={certDonutData} options={certDonutOptions} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-lg font-bold text-slate-800 font-outfit">{certStats.total}</span>
-                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Active</span>
+                                    <span className="text-xl font-extrabold text-slate-950 font-outfit">{certStats.total}</span>
+                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Active</span>
                                 </div>
                             </div>
                             
@@ -634,23 +713,23 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Valid</span>
+                                        <span className="text-slate-600 font-semibold text-[11px]">Valid</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{certStats.valid} ({certPercentages.valid}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{certStats.valid} ({certPercentages.valid}%)</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-amber-400 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Expiring</span>
+                                        <span className="text-slate-600 font-semibold text-[11px]">Expiring</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{certStats.expiringSoon} ({certPercentages.expiringSoon}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{certStats.expiringSoon} ({certPercentages.expiringSoon}%)</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <span className="w-2.5 h-2.5 rounded-full bg-rose-500 mr-2 shadow-sm"></span>
-                                        <span className="text-slate-500 font-medium">Expired</span>
+                                        <span className="text-slate-600 font-semibold text-[11px]">Expired</span>
                                     </div>
-                                    <span className="font-bold text-slate-800">{certStats.expired} ({certPercentages.expired}%)</span>
+                                    <span className="font-extrabold text-slate-950 text-xs">{certStats.expired} ({certPercentages.expired}%)</span>
                                 </div>
                             </div>
                         </div>
@@ -670,10 +749,10 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                     </div>
 
                     {/* Recent Activity Card */}
-                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex-1 flex flex-col justify-between">
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
                         <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-slate-800 font-outfit text-sm">Recent Activity</h3>
+                             <div className="flex items-center justify-between mb-4">
+                                 <h3 className="text-[15px] font-bold text-slate-950 font-outfit">Recent Activity</h3>
                                 <button onClick={() => onNavigateToTab('audit')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">View All</button>
                             </div>
                             
@@ -682,7 +761,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                     activities.slice(0, 3).map((act, idx) => {
                                         let bulletColor = 'bg-blue-600';
                                         if (act.action === 'signed') bulletColor = 'bg-emerald-500';
-                                        if (act.action === 'expired') bulletColor = 'bg-red-550';
+                                        if (act.action === 'expired') bulletColor = 'bg-red-500';
                                         if (act.action === 'upload') bulletColor = 'bg-blue-500';
                                         if (act.action === 'update') bulletColor = 'bg-purple-500';
 
@@ -690,7 +769,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                             <li key={act.id || idx} className="flex items-start space-x-3 text-xs">
                                                 <span className={`w-2 h-2 rounded-full ${bulletColor} shrink-0 mt-1.5`}></span>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-slate-650 font-medium leading-tight">{act.description}</p>
+                                                    <p className="text-slate-600 font-medium leading-tight">{act.description}</p>
                                                 </div>
                                                 <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap pt-0.5">{act.time || 'Baru saja'}</span>
                                             </li>
@@ -702,78 +781,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                             </ul>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            {/* Bottom Row: Audit Trail (Full Width) */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm font-sans">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-                    <h3 className="font-bold text-slate-800 font-outfit text-sm">Audit Trail</h3>
-                    <button onClick={() => onNavigateToTab('audit')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">View All</button>
-                </div>
-                
-                <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                                <th className="pb-3 text-left">Activity / User Action</th>
-                                <th className="pb-3 text-left">Status</th>
-                                <th className="pb-3 text-left">Time & Date</th>
-                                <th className="pb-3 text-right">IP Address</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {activities && activities.length > 0 ? (
-                                activities.map((act, idx) => {
-                                    let iconBg = 'bg-blue-50 text-blue-600';
-                                    let Icon = UploadSimple;
-                                    let statusBadge = 'bg-blue-50 text-blue-600 border border-blue-100/50';
-                                    let badgeLabel = 'Upload';
-
-                                    if (act.action === 'signed') {
-                                        iconBg = 'bg-emerald-50 text-emerald-600';
-                                        Icon = PencilSimple;
-                                        statusBadge = 'bg-emerald-50 text-emerald-600 border border-emerald-100/50';
-                                        badgeLabel = 'Signed';
-                                    } else if (act.action === 'update') {
-                                        iconBg = 'bg-purple-50 text-purple-600';
-                                        Icon = Pencil;
-                                        statusBadge = 'bg-purple-50 text-purple-600 border border-purple-100/50';
-                                        badgeLabel = 'Update';
-                                    } else if (act.action === 'system') {
-                                        iconBg = 'bg-slate-50 text-slate-600';
-                                        Icon = ShieldCheck;
-                                        statusBadge = 'bg-slate-50 text-slate-500 border border-slate-200';
-                                        badgeLabel = 'System';
-                                    }
-
-                                    return (
-                                        <tr key={act.id || idx} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-3">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className={`p-1.5 rounded-lg ${iconBg}`}>
-                                                        <Icon size={14} weight="bold" />
-                                                    </div>
-                                                    <span className="font-bold text-slate-850">{act.description}</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-3">
-                                                <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${statusBadge}`}>{badgeLabel}</span>
-                                            </td>
-                                            <td className="py-3 font-semibold text-slate-650">{act.time}</td>
-                                            <td className="py-3 text-right font-medium text-slate-500">{act.ip_address || '103.123.45.' + (67 + idx)}</td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" className="py-6 text-center text-slate-400 font-medium">
-                                        Tidak ada aktivitas audit.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
