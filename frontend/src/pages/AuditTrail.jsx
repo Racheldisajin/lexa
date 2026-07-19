@@ -17,15 +17,17 @@ export default function AuditTrail() {
     const fetchActivities = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/activities`);
+            const response = await fetch(`${API_URL}/api/activities`, {
+                credentials: 'include' // PERBAIKAN
+            });
             if (response.ok) {
                 const data = await response.json();
                 const formatted = data.map(act => ({
                     id: act.id,
                     action: act.action,
-                    description: `${act.user_name} melakukan ${act.action}: ${act.description}`,
+                    description: `${act.user_name || 'System'} melakukan ${act.action}: ${act.description}`,
                     created_at: act.created_at || new Date().toISOString(),
-                    ip_address: '127.0.0.1'
+                    ip_address: act.ip_address || '127.0.0.1'
                 }));
                 setActivities(formatted);
             } else {

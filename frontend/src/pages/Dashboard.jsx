@@ -60,7 +60,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
         labels: ['Signed', 'Pending', 'Draft', 'Rejected'],
         datasets: [{
             data: [docStats.signed, docStats.pending, docStats.draft, docStats.rejected],
-            backgroundColor: ['#2563eb', '#f59e0b', '#10b981', '#ef4444'], // Blue, Orange, Green, Red
+            backgroundColor: ['#2563eb', '#f59e0b', '#10b981', '#ef4444'],
             borderWidth: 0,
             hoverOffset: 4
         }]
@@ -148,13 +148,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
         expired: certStats.total > 0 ? Math.round((certStats.expired / certStats.total) * 100) : 0,
     };
 
-    // Mock profiles for stack avatars
-    const signersMock = [
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80',
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80'
-    ];
-
     return (
         <div className="p-8 space-y-6 max-w-7xl mx-auto font-sans bg-slate-50/50">
             
@@ -170,7 +163,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 
                 {/* Search, Notifications & Button Section */}
                 <div className="flex items-center space-x-4 self-end lg:self-auto w-full lg:w-auto">
-                    {/* Search bar */}
                     <div className="relative flex-1 lg:w-80">
                         <MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input 
@@ -181,12 +173,10 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                             className="w-full text-xs pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-700 font-sans shadow-sm"
                         />
                     </div>
-                    {/* Notification bell */}
                     <button className="p-2.5 bg-white border border-slate-200 rounded-full hover:bg-slate-50 relative shadow-sm cursor-pointer transition-all">
                         <Bell size={18} className="text-slate-600" />
                         <span className="absolute top-1 right-1 w-4 h-4 bg-blue-600 text-[9px] font-bold text-white rounded-full flex items-center justify-center">3</span>
                     </button>
-                    {/* New Document Button */}
                     <button 
                         onClick={() => onNavigateToTab('documents')}
                         className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-full flex items-center space-x-1.5 shadow-md shadow-blue-500/20 cursor-pointer transition-all shrink-0"
@@ -220,7 +210,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
 
             {/* 4 Stats Cards Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
                 {/* Card 1: Total Documents */}
                 <div className="bg-white rounded-3xl p-6 relative overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
                     <div className="flex items-start justify-between relative z-10">
@@ -316,7 +305,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
 
             {/* Charts & Quick Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
                 {/* Documents Overview Card */}
                 <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
@@ -335,10 +323,9 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                     
                     {/* Split View: Donut and Line chart */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center font-sans">
-                        
                         {/* Left Side: Donut Chart with stack legend */}
                         <div className="flex items-center space-x-6">
-                            <div className="relative w-36 h-36 flex-shrink-0">
+                            <div className="relative w-36 h-36 shrink-0">
                                 <Doughnut data={donutData} options={donutOptions} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <span className="text-2xl font-black text-slate-800 font-outfit">{docStats.total}</span>
@@ -392,7 +379,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                 <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
                     <h3 className="font-bold text-slate-800 font-outfit mb-4 text-sm">Quick Actions</h3>
                     <div className="flex flex-col space-y-3 flex-1">
-                        
                         <button onClick={() => onNavigateToTab('documents')} className="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-100 p-3 rounded-2xl flex items-center space-x-3 transition-all group cursor-pointer text-left">
                             <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-105 transition-transform">
                                 <UploadSimple size={20} weight="bold" />
@@ -442,14 +428,12 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                 <span className="text-[9px] text-slate-500">Verifikasi keaslian dokumen</span>
                             </div>
                         </button>
-
                     </div>
                 </div>
             </div>
 
             {/* Middle Section: Recent Documents Table & Side Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">
-                
                 {/* Recent Documents Table */}
                 <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
@@ -471,7 +455,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                             <tbody className="divide-y divide-slate-50">
                                 {recentDocs && recentDocs.length > 0 ? (
                                     recentDocs.map((doc, idx) => {
-                                        // Dynamic file type mapping
                                         const isPdf = doc.type?.toLowerCase() === 'pdf' || doc.title?.toLowerCase().endsWith('.pdf');
                                         const isDocx = doc.type?.toLowerCase() === 'docx' || doc.title?.toLowerCase().endsWith('.docx') || doc.title?.toLowerCase().endsWith('.doc');
                                         const isXlsx = doc.type?.toLowerCase() === 'xlsx' || doc.title?.toLowerCase().endsWith('.xlsx') || doc.title?.toLowerCase().endsWith('.xls');
@@ -489,7 +472,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                             subtitle = 'Dokumen';
                                         }
 
-                                        // Status badge mapping
                                         let statusBadge = 'bg-slate-100 text-slate-500 border border-slate-200';
                                         if (doc.status === 'signed') statusBadge = 'bg-emerald-50 text-emerald-600 border border-emerald-100/50';
                                         if (doc.status === 'pending') statusBadge = 'bg-amber-50 text-amber-600 border border-amber-100/50';
@@ -504,7 +486,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                         <div className={`p-2 rounded-xl ${typeBg}`}>
                                                             <FileText size={18} weight="bold" />
                                                         </div>
-                                                        <div className="truncate max-w-[200px]">
+                                                        <div className="truncate max-w-50">
                                                             <span className="font-bold text-slate-850 block truncate">{doc.title}</span>
                                                             <span className="text-[9px] text-slate-400 font-medium">{subtitle}</span>
                                                         </div>
@@ -562,7 +544,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
 
                                                         {activeDropdown === doc.id && (
                                                             <>
-                                                                {/* Backdrop click-to-close */}
                                                                 <div 
                                                                     className="fixed inset-0 z-30 cursor-default" 
                                                                     onClick={(e) => {
@@ -570,7 +551,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                                         setActiveDropdown(null);
                                                                     }}
                                                                 />
-                                                                {/* Dropdown Menu */}
                                                                 <div 
                                                                     className={`absolute right-4 w-36 border border-slate-100 rounded-xl shadow-lg py-1.5 z-40 text-left animate-in fade-in duration-150 ${
                                                                         idx === recentDocs.length - 1 && recentDocs.length > 1
@@ -634,7 +614,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
 
                 {/* Side Cards: Certificate Overview & Recent Activity */}
                 <div className="space-y-6 flex flex-col justify-between">
-                    
                     {/* Certificate Overview Card */}
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
@@ -643,7 +622,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                         </div>
                         
                         <div className="flex items-center space-x-6">
-                            <div className="relative w-20 h-20 flex-shrink-0">
+                            <div className="relative w-20 h-20 shrink-0">
                                 <Doughnut data={certDonutData} options={certDonutOptions} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <span className="text-lg font-bold text-slate-800 font-outfit">{certStats.total}</span>
@@ -723,7 +702,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                             </ul>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -765,7 +743,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                     } else if (act.action === 'system') {
                                         iconBg = 'bg-slate-50 text-slate-600';
                                         Icon = ShieldCheck;
-                                        statusBadge = 'bg-slate-55 text-slate-500 border border-slate-200';
+                                        statusBadge = 'bg-slate-50 text-slate-500 border border-slate-200';
                                         badgeLabel = 'System';
                                     }
 
@@ -783,7 +761,7 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                                                 <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${statusBadge}`}>{badgeLabel}</span>
                                             </td>
                                             <td className="py-3 font-semibold text-slate-650">{act.time}</td>
-                                            <td className="py-3 text-right font-medium text-slate-500">{act.ip || '103.123.45.' + (67 + idx)}</td>
+                                            <td className="py-3 text-right font-medium text-slate-500">{act.ip_address || '103.123.45.' + (67 + idx)}</td>
                                         </tr>
                                     );
                                 })
@@ -798,7 +776,6 @@ export default function Dashboard({ stats, recentDocs, activities, onNavigateToT
                     </table>
                 </div>
             </div>
-
         </div>
     );
 }

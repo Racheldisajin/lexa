@@ -16,7 +16,9 @@ export default function UsersAndRoles() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/auth/users`);
+            const response = await fetch(`${API_URL}/api/auth/users`, {
+                credentials: 'include' // PERBAIKAN
+            });
             if (response.ok) {
                 const data = await response.json();
                 const formatted = data.map((u) => ({
@@ -63,7 +65,6 @@ export default function UsersAndRoles() {
                     <div className="text-center py-8 text-slate-500 text-xs">Memuat data...</div>
                 ) : (
                     <div>
-                        {/* Desktop Table - Hidden on Mobile */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-sm text-left border-collapse">
                                 <thead className="text-xs text-slate-400 bg-slate-50/50 border-b border-slate-200/60 uppercase">
@@ -111,7 +112,6 @@ export default function UsersAndRoles() {
                             </table>
                         </div>
 
-                        {/* Mobile Cards - Visible only on Mobile */}
                         <div className="block md:hidden space-y-4">
                             {users.map((userItem) => (
                                 <div key={userItem.id} className="p-4 bg-slate-50/30 border border-slate-100 rounded-2xl flex flex-col space-y-3.5 shadow-sm">

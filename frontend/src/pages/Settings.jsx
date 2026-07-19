@@ -362,7 +362,7 @@ export default function Settings() {
                                     setPanY(clientY - dragStart.y);
                                 }}
                                 onTouchEnd={() => setIsDragging(false)}
-                                className="w-[200px] h-[200px] relative overflow-hidden rounded-full border-2 border-indigo-500/50 bg-slate-950 cursor-move select-none"
+                                className="w-50 h-50 relative overflow-hidden rounded-full border-2 border-indigo-500/50 bg-slate-950 cursor-move select-none"
                             >
                                 <img 
                                     src={rawImageSrc}

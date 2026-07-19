@@ -92,7 +92,6 @@ export default function Login() {
                                         <button 
                                             onClick={() => {
                                                 removeRememberedUser(u.email);
-                                                // Trigger state re-check if remembered list is empty
                                                 const updatedList = JSON.parse(localStorage.getItem('lexa_remembered_users') || '[]');
                                                 if (updatedList.length === 0) {
                                                     setShowClassicForm(true);
@@ -140,7 +139,7 @@ export default function Login() {
 
                         {error && (
                             <div className="bg-rose-500/10 border border-rose-500/20 text-rose-200 text-xs p-3.5 rounded-2xl mb-4 leading-relaxed flex items-start space-x-2">
-                                <Warning size={16} weight="bold" className="flex-shrink-0 mt-0.5" />
+                                <Warning size={16} weight="bold" className="shrink-0 mt-0.5" />
                                 <span>{error}</span>
                             </div>
                         )}
