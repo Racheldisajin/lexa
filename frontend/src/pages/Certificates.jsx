@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Plus, 
-    Trash, 
-    ShieldCheck
-} from '@phosphor-icons/react';
+import { Plus, Trash, ShieldCheck } from '@phosphor-icons/react';
 import API_URL from '../config';
-
 
 export default function Certificates() {
     const [certificates, setCertificates] = useState([]);
@@ -23,7 +18,9 @@ export default function Certificates() {
     const fetchCertificates = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/certificates`);
+            const response = await fetch(`${API_URL}/api/certificates`, {
+                credentials: 'include' // PERBAIKAN
+            });
             if (response.ok) {
                 const data = await response.json();
                 setCertificates(data);
@@ -53,6 +50,7 @@ export default function Certificates() {
 
             const response = await fetch(`${API_URL}/api/certificates`, {
                 method: 'POST',
+                credentials: 'include', // PERBAIKAN
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: nameVal, holder, validityDays })
             });
@@ -81,7 +79,8 @@ export default function Certificates() {
         if (!confirm('Apakah Anda yakin ingin mencabut/menghapus sertifikat ini?')) return;
         try {
             const response = await fetch(`${API_URL}/api/certificates/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include' // PERBAIKAN
             });
             if (response.ok) {
                 fetchCertificates();
@@ -95,7 +94,6 @@ export default function Certificates() {
 
     return (
         <div className="p-8 space-y-6 max-w-7xl mx-auto dot-pattern">
-            {/* Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                     <h3 className="text-sm font-bold text-slate-800 font-outfit">Sertifikat Otoritas Jaringan (CA)</h3>
@@ -110,7 +108,6 @@ export default function Certificates() {
                 </button>
             </div>
 
-            {/* List Table */}
             <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm overflow-hidden">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 font-outfit">Daftar Sertifikat Aktif</h4>
                 
@@ -136,7 +133,7 @@ export default function Certificates() {
                                     <tr key={cert.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="py-3.5 font-medium text-slate-800 flex items-center space-x-2">
                                             <ShieldCheck size={16} weight="fill" className="text-emerald-600" />
-                                            <span className="truncate max-w-[180px]">{cert.name}</span>
+                                            <span className="truncate max-w-45">{cert.name}</span>
                                         </td>
                                         <td className="py-3.5 text-slate-600 font-medium">{cert.holder}</td>
                                         <td className="py-3.5 text-slate-500 font-sans">{cert.issued_at}</td>
@@ -167,13 +164,11 @@ export default function Certificates() {
                 )}
             </div>
 
-            {/* Issue/Upload Certificate Modal */}
             {showIssueModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
                         <h3 className="text-base font-bold text-slate-900 font-outfit mb-4">Tambahkan Sertifikat Digital</h3>
                         
-                        {/* Tabs for Generate vs Upload */}
                         <div className="flex border-b border-slate-200 mb-6">
                             <button 
                                 onClick={() => setCertSource('generate')}

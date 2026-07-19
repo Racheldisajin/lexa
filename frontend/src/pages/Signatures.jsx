@@ -9,7 +9,6 @@ import {
     ArrowUpRight
 } from '@phosphor-icons/react';
 
-
 export default function Signatures() {
     const { user, updateUser } = useAuth();
     const [signatures, setSignatures] = useState([]);
@@ -18,13 +17,11 @@ export default function Signatures() {
     const [loading, setLoading] = useState(true);
     const [showRequestModal, setShowRequestModal] = useState(false);
     
-    // Setup Signature Modal State
     const [showSignatureSetupModal, setShowSignatureSetupModal] = useState(false);
     const [pendingSignId, setPendingSignId] = useState(null);
     const canvasRef = React.useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
 
-    // Form state
     const [selectedDocId, setSelectedDocId] = useState('');
     const [selectedSignerId, setSelectedSignerId] = useState('');
     const [requesting, setRequesting] = useState(false);
@@ -32,30 +29,37 @@ export default function Signatures() {
     const [success, setSuccess] = useState('');
 
     const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Load documents from backend
-            const docsRes = await fetch(`${API_URL}/api/documents`);
-            if (docsRes.ok) {
-                const data = await docsRes.json();
-                setSignatures(data);
-                
-                // Available docs to request signature (not signed yet and uploaded by current user)
-                setDocuments(data.filter(d => d.status !== 'signed' && d.uploaded_by_email === user?.email));
+    setLoading(true);
+    try {
+        const docsRes = await fetch(`${API_URL}/api/documents`, {
+            credentials: 'include'
+        });
+        if (docsRes.ok) {
+            const data = await docsRes.json();
+            setSignatures(data);
+            
+            // PERBAIKAN: Admin bisa pilih dari SEMUA dokumen (untuk assign siapa yang sign)
+            // User biasa tidak butuh dropdown ini karena mereka hanya sign yang ditugaskan
+            if (user?.role === 'admin') {
+                setDocuments(data.filter(d => d.status !== 'signed'));
+            } else {
+                setDocuments([]);
             }
-
-            // Load users list
-            const usersRes = await fetch(`${API_URL}/api/auth/users`);
-            if (usersRes.ok) {
-                const allUsers = await usersRes.json();
-                setUsers(allUsers.filter(u => u.email !== user?.email));
-            }
-        } catch (err) {
-            console.error('Error fetching data for signatures:', err.message);
-        } finally {
-            setLoading(false);
         }
-    };
+
+        const usersRes = await fetch(`${API_URL}/api/auth/users`, {
+            credentials: 'include'
+        });
+        if (usersRes.ok) {
+            const allUsers = await usersRes.json();
+            setUsers(allUsers.filter(u => u.email !== user?.email));
+        }
+    } catch (err) {
+        console.error('Error fetching data for signatures:', err.message);
+    } finally {
+        setLoading(false);
+    }
+};
 
     useEffect(() => {
         fetchData();
@@ -70,15 +74,16 @@ export default function Signatures() {
         try {
             const response = await fetch(`${API_URL}/api/documents/${selectedDocId}/request-signer`, {
                 method: 'POST',
+                credentials: 'include', // PERBAIKAN
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: selectedSignerId })
             });
 
             const data = await response.json();
             if (response.ok && data.success) {
-                // Log action to activities table
                 await fetch(`${API_URL}/api/activities`, {
                     method: 'POST',
+                    credentials: 'include', // PERBAIKAN
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         user_name: user?.name || 'User',
@@ -193,15 +198,16 @@ export default function Signatures() {
             
             const response = await fetch(`${API_URL}/api/documents/${id}/sign`, {
                 method: 'POST',
+                credentials: 'include', // PERBAIKAN
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: user?.email })
             });
 
             const data = await response.json();
             if (response.ok && data.success) {
-                // Log action to activities table
                 await fetch(`${API_URL}/api/activities`, {
                     method: 'POST',
+                    credentials: 'include', // PERBAIKAN
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         user_name: user?.name || 'User',
@@ -222,29 +228,34 @@ export default function Signatures() {
     };
 
     const myPendingSignatures = signatures.filter(s => {
-        const userEmail = user?.email?.toLowerCase();
-        if (s.target_signers) {
-            return s.status === 'pending' && s.target_signers.some(ts => ts.email.toLowerCase() === userEmail && ts.status === 'pending');
-        }
-        return s.target_signer_email?.toLowerCase() === userEmail && s.status === 'pending';
-    });
+    const userEmail = user?.email?.toLowerCase();
+    if (!s.signatures) return false;
+    return s.signatures.some(sig => 
+        sig.signer?.email?.toLowerCase() === userEmail && !sig.signed_at
+    );
+});
 
     return (
         <div className="p-8 space-y-6 max-w-7xl mx-auto dot-pattern">
-            {/* Header / Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                    <h3 className="text-sm font-bold text-slate-800 font-outfit">Permintaan Tanda Tangan Digital</h3>
-                    <p className="text-xs text-slate-500">Kelola dokumen yang memerlukan verifikasi tanda tangan digital Anda maupun anggota tim.</p>
-                </div>
-                <button 
-                    onClick={() => setShowRequestModal(true)}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-all shadow-md shadow-indigo-600/20 flex items-center space-x-1 cursor-pointer font-sans"
-                >
-                    <Plus size={14} weight="bold" />
-                    <span>Minta Tanda Tangan</span>
-                </button>
-            </div>
+    <div>
+        <h3 className="text-sm font-bold text-slate-800 font-outfit">Permintaan Tanda Tangan Digital</h3>
+        <p className="text-xs text-slate-500">
+            {user?.role === 'admin' 
+                ? 'Kelola dokumen dan tetapkan siapa yang perlu menandatangani.' 
+                : 'Dokumen yang memerlukan tanda tangan digital Anda.'}
+        </p>
+    </div>
+    {user?.role === 'admin' && (
+        <button 
+            onClick={() => setShowRequestModal(true)}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-all shadow-md shadow-indigo-600/20 flex items-center space-x-1 cursor-pointer font-sans"
+        >
+            <Plus size={14} weight="bold" />
+            <span>Minta Tanda Tangan</span>
+        </button>
+    )}
+</div>
             
             {success && (
                 <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] p-3 rounded-xl mb-4 font-sans max-w-lg mx-auto text-center">
@@ -252,7 +263,6 @@ export default function Signatures() {
                 </div>
             )}
 
-            {/* My Pending Action Box */}
             {myPendingSignatures.length > 0 && (
                 <div className="bg-amber-50/50 border border-amber-200/60 rounded-3xl p-6 shadow-sm space-y-4">
                     <div className="flex items-center space-x-2">
@@ -290,7 +300,6 @@ export default function Signatures() {
                 </div>
             )}
 
-            {/* General Log / Other Signatures */}
             <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm overflow-hidden">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 font-outfit">Log Status Tanda Tangan</h4>
                 
@@ -312,26 +321,28 @@ export default function Signatures() {
                             <tbody className="divide-y divide-slate-50">
                                 {signatures.map((sig) => (
                                     <tr key={sig.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="py-3.5 font-medium text-slate-800 max-w-[220px] truncate">
+                                        <td className="py-3.5 font-medium text-slate-800 max-w-55 truncate">
                                             {sig.title} <br/>
                                             <span className="text-[9px] text-slate-400 font-normal">Dari: {sig.uploaded_by?.name}</span>
                                         </td>
                                         <td className="py-3.5 text-slate-600 font-medium">
-                                            {sig.target_signers ? (
-                                                <div className="flex flex-wrap gap-1">
-                                                    {sig.target_signers.map((ts, i) => (
-                                                        <span key={i} className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${ts.status === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                                                            {ts.email.split('@')[0]}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                sig.target_signer_email || '-'
-                                            )}
-                                        </td>
-                                        <td className="py-3.5 text-slate-500 font-sans">
-                                            {sig.signed_at ? new Date(sig.signed_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
-                                        </td>
+    {sig.signatures && sig.signatures.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+            {sig.signatures.map((s, i) => (
+                <span key={i} className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${s.signed_at ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                    {s.signer?.name || s.signer?.email?.split('@')[0] || '-'}
+                </span>
+            ))}
+        </div>
+    ) : (
+        '-'
+    )}
+</td>
+<td className="py-3.5 text-slate-500 font-sans">
+    {sig.signatures && sig.signatures.some(s => s.signed_at)
+        ? new Date(sig.signatures.find(s => s.signed_at).signed_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '-'}
+</td>
                                         <td className="py-3.5">
                                             <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase ${
                                                 sig.status === 'signed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
@@ -348,7 +359,6 @@ export default function Signatures() {
                 )}
             </div>
 
-            {/* Request Signature Modal */}
             {showRequestModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
@@ -417,7 +427,6 @@ export default function Signatures() {
                 </div>
             )}
 
-            {/* Signature Setup Modal */}
             {showSignatureSetupModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-2xl w-full shadow-2xl relative">
@@ -427,7 +436,6 @@ export default function Signatures() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            {/* Draw Canvas Area */}
                             <div className="space-y-3">
                                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider font-sans">Gambar Tanda Tangan</label>
                                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-2 bg-slate-50 relative h-40 flex items-center justify-center flex-col text-slate-400 hover:border-indigo-300 transition-colors cursor-crosshair overflow-hidden">
@@ -462,7 +470,6 @@ export default function Signatures() {
                                 </div>
                             </div>
 
-                            {/* Upload File Area */}
                             <div className="space-y-3">
                                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider font-sans">Unggah File (PNG Transparan)</label>
                                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 h-40 flex flex-col items-center justify-center relative hover:border-indigo-300 transition-colors cursor-pointer">

@@ -16,26 +16,7 @@ import UsersAndRoles from './pages/UsersAndRoles';
 import AuditTrail from './pages/AuditTrail';
 import Settings from './pages/Settings';
 
-// Mock data functions
-const getMockStats = () => ({
-    documents: { total: 124, signed: 89, pending: 20, draft: 10, rejected: 5 },
-    certificates: { total: 45, valid: 40, expired: 3, expiringSoon: 2, nextExpiry: 'LEXA-SSL-2027 (15 Des 2026)' }
-});
-
-const getMockRecentDocs = () => [
-    { id: 1, title: 'Perjanjian Kerja Sama Vendor', type: 'PDF', status: 'signed', date: 'Hari ini, 10:30' },
-    { id: 2, title: 'Surat Keputusan Direksi', type: 'PDF', status: 'pending', date: 'Hari ini, 09:15' },
-    { id: 3, title: 'NDA Project Phoenix', type: 'DOCX', status: 'draft', date: 'Kemarin, 16:45' },
-    { id: 4, title: 'Invoice Pembelian Software', type: 'PDF', status: 'signed', date: 'Kemarin, 14:20' }
-];
-
-const getMockActivities = () => [
-    { id: 1, action: 'signed', description: 'Budi menandatangani "Perjanjian Kerja Sama Vendor"', time: '10:30 AM' },
-    { id: 2, action: 'upload', description: 'Anda mengunggah "Surat Keputusan Direksi"', time: '09:15 AM' },
-    { id: 3, action: 'system', description: 'Sistem memperbarui sertifikat root LEXA CA', time: '01:00 AM' },
-    { id: 4, action: 'update', description: 'Rina mengubah peran "Admin" untuk tim Finance', time: 'Kemarin, 15:30' }
-];
-
+// Mock data functions (tetap ada agar tidak error jika ada referensi, tapi state utama diambil dari API)
 const getMockNotifications = () => [
     { id: 1, title: 'Dokumen Ditandatangani', message: 'Budi telah menandatangani NDA Project Phoenix', time: '5m lalu' },
     { id: 2, title: 'Peringatan Sertifikat', message: 'Sertifikat SSL Server akan kadaluarsa dalam 5 hari', time: '2j lalu' }
@@ -46,19 +27,20 @@ function DashboardLayout() {
     const [currentTab, setCurrentTab] = useState('dashboard');
     const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState({
-        documents: { total: 0, signed: 0, pending: 0, draft: 0, rejected: 0 },
+        documents: { total: 0, signed: 0, pending: 0, draft: 0, rejected: 0, pendingForMe: 0 },
         certificates: { total: 0, valid: 0, expired: 0, expiringSoon: 0, nextExpiry: '' }
     });
     const [recentDocs, setRecentDocs] = useState([]);
     const [activities, setActivities] = useState([]);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const fetchDashboardData = async () => {
         try {
             // 1. Fetch Documents
-            const docsRes = await fetch(`${API_URL}/api/documents`);
+            const docsRes = await fetch(`${API_URL}/api/documents`, {
+                credentials: 'include' // PERBAIKAN
+            });
             let sortedDocs = [];
             if (docsRes.ok) {
                 const docs = await docsRes.json();
@@ -81,7 +63,9 @@ function DashboardLayout() {
             }).length;
 
             // 2. Fetch Certificates
-            const certsRes = await fetch(`${API_URL}/api/certificates`);
+            const certsRes = await fetch(`${API_URL}/api/certificates`, {
+                credentials: 'include' // PERBAIKAN
+            });
             let storedCerts = [];
             if (certsRes.ok) {
                 storedCerts = await certsRes.json();
@@ -103,15 +87,18 @@ function DashboardLayout() {
             };
 
             // 3. Fetch Activities
-            const actsRes = await fetch(`${API_URL}/api/activities`);
+            const actsRes = await fetch(`${API_URL}/api/activities`, {
+                credentials: 'include' // PERBAIKAN
+            });
             let storedActs = [];
             if (actsRes.ok) {
                 const acts = await actsRes.json();
                 storedActs = acts.map(act => ({
                     id: act.id,
                     action: act.action,
-                    description: `${act.user_name} melakukan ${act.action}: ${act.description}`,
-                    time: act.time || 'WIB'
+                    description: `${act.user_name || 'System'} melakukan ${act.action}: ${act.description}`,
+                    time: act.time || 'WIB',
+                    ip_address: act.ip_address || '127.0.0.1'
                 }));
             }
 
@@ -143,7 +130,6 @@ function DashboardLayout() {
     }
 
     const handleUpgrade = (plan) => {
-        // Mock API call to upgrade
         setTimeout(() => {
             upgradePlan(plan);
             setShowUpgradeModal(false);
@@ -151,27 +137,22 @@ function DashboardLayout() {
         }, 500);
     };
 
-    const handleDeleteDocument = (id) => {
-        const storedDocs = JSON.parse(localStorage.getItem('lexa_mock_docs') || '[]');
-        const updatedDocs = storedDocs.filter(doc => doc.id !== id);
-        localStorage.setItem('lexa_mock_docs', JSON.stringify(updatedDocs));
-        
-        // Add delete activity
-        const deletedDoc = storedDocs.find(doc => doc.id === id);
-        if (deletedDoc) {
-            const newActivity = {
-                id: Date.now(),
-                action: 'system',
-                description: `Dokumen "${deletedDoc.title}" berhasil dihapus`,
-                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
-                date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-            };
-            const storedActivities = JSON.parse(localStorage.getItem('lexa_activities') || '[]');
-            storedActivities.unshift(newActivity);
-            localStorage.setItem('lexa_activities', JSON.stringify(storedActivities));
+    // PERBAIKAN: Menghapus dokumen via API, bukan localStorage
+    const handleDeleteDocument = async (id) => {
+        try {
+            const response = await fetch(`${API_URL}/api/documents/${id}`, { 
+                method: 'DELETE',
+                credentials: 'include' // PERBAIKAN
+            });
+            if (response.ok) {
+                fetchDashboardData(); // Refresh data setelah berhasil dihapus
+            } else {
+                alert('Gagal menghapus dokumen dari database.');
+            }
+        } catch (err) {
+            console.error('Error deleting document:', err.message);
+            alert('Gagal menghubungi server.');
         }
-
-        fetchDashboardData();
     };
 
     const renderActiveTabContent = () => {
@@ -223,7 +204,7 @@ function DashboardLayout() {
                 currentTab={currentTab} 
                 setCurrentTab={(tab) => {
                     setCurrentTab(tab);
-                    setIsSidebarOpen(false); // Close sidebar on mobile when navigating
+                    setIsSidebarOpen(false);
                 }} 
                 isOpen={isSidebarOpen}
             />

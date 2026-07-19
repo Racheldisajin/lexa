@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import API_URL from '../config';
+import { ensureCsrfCookie } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -8,20 +9,17 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Load user from localStorage on mount
         const storedUser = localStorage.getItem('lexa_user');
         if (storedUser) {
             const parsedUser = JSON.parse(storedUser);
             setUser(parsedUser);
-
-            // Sync with lexa_active_sessions
+            
             const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
             if (!active.some(u => u.email.toLowerCase() === parsedUser.email.toLowerCase())) {
                 active.push(parsedUser);
                 localStorage.setItem('lexa_active_sessions', JSON.stringify(active));
             }
-
-            // Sync with lexa_remembered_users
+            
             const remembered = JSON.parse(localStorage.getItem('lexa_remembered_users') || '[]');
             if (!remembered.some(u => u.email.toLowerCase() === parsedUser.email.toLowerCase())) {
                 remembered.push(parsedUser);
@@ -32,26 +30,32 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+    try {
+        await ensureCsrfCookie(); // PERBAIKAN: ambil CSRF cookie dulu
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': decodeURIComponent(
+                    document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || ''
+                )
+            },
+            body: JSON.stringify({ email, password })
+        });
             const data = await response.json();
+            
             if (response.ok && data.success) {
                 const loggedInUser = data.user;
                 setUser(loggedInUser);
                 localStorage.setItem('lexa_user', JSON.stringify(loggedInUser));
-
-                // Sync to active sessions list
+                
                 const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
                 if (!active.some(u => u.email.toLowerCase() === loggedInUser.email.toLowerCase())) {
                     active.push(loggedInUser);
                     localStorage.setItem('lexa_active_sessions', JSON.stringify(active));
                 }
-
-                // Sync to remembered users
+                
                 const remembered = JSON.parse(localStorage.getItem('lexa_remembered_users') || '[]');
                 if (!remembered.some(u => u.email.toLowerCase() === loggedInUser.email.toLowerCase())) {
                     remembered.push(loggedInUser);
@@ -70,23 +74,23 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
+                credentials: 'include', // PERBAIKAN
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
             });
             const data = await response.json();
+            
             if (response.ok && data.success) {
                 const userSession = data.user;
                 setUser(userSession);
                 localStorage.setItem('lexa_user', JSON.stringify(userSession));
-
-                // Sync to active sessions list
+                
                 const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
                 if (!active.some(u => u.email.toLowerCase() === userSession.email.toLowerCase())) {
                     active.push(userSession);
                     localStorage.setItem('lexa_active_sessions', JSON.stringify(active));
                 }
-
-                // Sync to remembered users
+                
                 const remembered = JSON.parse(localStorage.getItem('lexa_remembered_users') || '[]');
                 if (!remembered.some(u => u.email.toLowerCase() === userSession.email.toLowerCase())) {
                     remembered.push(userSession);
@@ -109,21 +113,17 @@ export const AuthProvider = ({ children }) => {
         active = active.filter(u => u.email.toLowerCase() !== targetEmail.toLowerCase());
         localStorage.setItem('lexa_active_sessions', JSON.stringify(active));
 
-        // If the logged out user is the current active user
         if (user && user.email.toLowerCase() === targetEmail.toLowerCase()) {
             if (active.length > 0) {
-                // Switch to the first remaining active session
                 const nextUser = active[0];
                 setUser(nextUser);
                 localStorage.setItem('lexa_user', JSON.stringify(nextUser));
             } else {
-                // No more active sessions, clear everything
                 setUser(null);
                 localStorage.removeItem('lexa_user');
                 localStorage.removeItem('lexa_active_sessions');
             }
         } else {
-            // Trigger a re-render of user to refresh dropdown items
             setUser({ ...user });
         }
     };
@@ -141,8 +141,7 @@ export const AuthProvider = ({ children }) => {
         if (targetUser) {
             setUser(targetUser);
             localStorage.setItem('lexa_user', JSON.stringify(targetUser));
-
-            // Sync to active sessions
+            
             const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
             if (!active.some(u => u.email.toLowerCase() === targetUser.email.toLowerCase())) {
                 active.push(targetUser);
@@ -158,13 +157,11 @@ export const AuthProvider = ({ children }) => {
         remembered = remembered.filter(u => u.email.toLowerCase() !== email.toLowerCase());
         localStorage.setItem('lexa_remembered_users', JSON.stringify(remembered));
 
-        // Also clean it from active sessions if present
         let active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
         if (active.some(u => u.email.toLowerCase() === email.toLowerCase())) {
             active = active.filter(u => u.email.toLowerCase() !== email.toLowerCase());
             localStorage.setItem('lexa_active_sessions', JSON.stringify(active));
             
-            // If the removed user is the current user, log out or switch
             if (user && user.email.toLowerCase() === email.toLowerCase()) {
                 if (active.length > 0) {
                     const nextUser = active[0];
@@ -184,16 +181,17 @@ export const AuthProvider = ({ children }) => {
             try {
                 const response = await fetch(`${API_URL}/api/auth/upgrade-plan`, {
                     method: 'PUT',
+                    credentials: 'include', // PERBAIKAN
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: user.email, plan: newPlan })
                 });
                 const data = await response.json();
+                
                 if (response.ok && data.success) {
                     const updatedUser = data.user;
                     setUser(updatedUser);
                     localStorage.setItem('lexa_user', JSON.stringify(updatedUser));
                     
-                    // Sync inside lexa_active_sessions as well
                     const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
                     const idx = active.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
                     if (idx !== -1) {
@@ -212,16 +210,17 @@ export const AuthProvider = ({ children }) => {
             try {
                 const response = await fetch(`${API_URL}/api/auth/user`, {
                     method: 'PUT',
+                    credentials: 'include', // PERBAIKAN
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: user.email, ...updatedFields })
                 });
                 const data = await response.json();
+                
                 if (response.ok && data.success) {
                     const updatedUser = data.user;
                     setUser(updatedUser);
                     localStorage.setItem('lexa_user', JSON.stringify(updatedUser));
                     
-                    // Sync inside lexa_active_sessions
                     const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
                     const idx = active.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
                     if (idx !== -1) {
@@ -238,7 +237,7 @@ export const AuthProvider = ({ children }) => {
     const switchAccount = (email) => {
         const active = JSON.parse(localStorage.getItem('lexa_active_sessions') || '[]');
         const targetUser = active.find(u => u.email.toLowerCase() === email.toLowerCase());
-
+        
         if (targetUser) {
             setUser(targetUser);
             localStorage.setItem('lexa_user', JSON.stringify(targetUser));
@@ -248,18 +247,18 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            loading, 
-            login, 
-            register, 
-            logout, 
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            login,
+            register,
+            logout,
             logoutAll,
             loginRememberedUser,
             removeRememberedUser,
-            upgradePlan, 
-            updateUser, 
-            switchAccount 
+            upgradePlan,
+            updateUser,
+            switchAccount
         }}>
             {children}
         </AuthContext.Provider>

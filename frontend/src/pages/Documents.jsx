@@ -1,20 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    FileText, 
-    Upload, 
-    Trash, 
-    MagnifyingGlass, 
-    File, 
-    CheckCircle, 
-    Clock, 
-    XCircle,
-    Copy,
-    ShieldCheck,
-    Warning
+    FileText, Upload, Trash, MagnifyingGlass, Copy, ShieldCheck, Warning, CheckCircle, XCircle 
 } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../config';
-
 
 export default function Documents() {
     const { user } = useAuth();
@@ -24,10 +13,7 @@ export default function Documents() {
     const [filterStatus, setFilterStatus] = useState('all');
     const [showUploadModal, setShowUploadModal] = useState(false);
     
-    // Available users for Target Signer
     const [availableUsers, setAvailableUsers] = useState([]);
-
-    // Upload form state
     const [fileTitle, setFileTitle] = useState('');
     const [docType, setDocType] = useState('General');
     const [selectedFile, setSelectedFile] = useState(null);
@@ -36,7 +22,6 @@ export default function Documents() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    // Verification state
     const [verifyFile, setVerifyFile] = useState(null);
     const [verifying, setVerifying] = useState(false);
     const [verifyResult, setVerifyResult] = useState(null);
@@ -45,7 +30,9 @@ export default function Documents() {
     const fetchDocuments = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/documents`);
+            const response = await fetch(`${API_URL}/api/documents`, {
+                credentials: 'include' // PERBAIKAN
+            });
             if (response.ok) {
                 const data = await response.json();
                 data.sort((a, b) => b.id - a.id);
@@ -63,7 +50,9 @@ export default function Documents() {
         
         const loadUsers = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/auth/users`);
+                const response = await fetch(`${API_URL}/api/auth/users`, {
+                    credentials: 'include' // PERBAIKAN
+                });
                 if (response.ok) {
                     const data = await response.json();
                     const filtered = data.filter(u => u.email !== user?.email);
@@ -87,50 +76,50 @@ export default function Documents() {
     };
 
     const handleUploadSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
-        setUploading(true);
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setUploading(true);
 
-        try {
-            const response = await fetch(`${API_URL}/api/documents`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: fileTitle,
-                    type: docType,
-                    uploaded_by: { name: user.name, email: user.email },
-                    target_signer_emails: targetSigners
-                })
-            });
+    try {
+        const formData = new FormData();
+        formData.append('title', fileTitle);
+        formData.append('type', docType);
+        formData.append('file', selectedFile);
+        formData.append('target_signer_emails', JSON.stringify(targetSigners));
 
-            const data = await response.json();
-            if (response.ok && data.success) {
-                setSuccess('Dokumen berhasil diunggah & dikirim ke penandatangan!');
-                setFileTitle('');
-                setSelectedFile(null);
-                setTargetSigners([]);
-                fetchDocuments();
-                
-                setTimeout(() => {
-                    setShowUploadModal(false);
-                    setSuccess('');
-                }, 1500);
-            } else {
-                setError(data.message || 'Gagal menyimpan dokumen ke database.');
-            }
-        } catch (err) {
-            setError('Gagal menghubungi server database.');
-        } finally {
-            setUploading(false);
+        const response = await fetch(`${API_URL}/api/documents`, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData // JANGAN set Content-Type manual, biar browser yang atur boundary-nya
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+            setSuccess('Dokumen berhasil diunggah & dikirim ke penandatangan!');
+            setFileTitle('');
+            setSelectedFile(null);
+            setTargetSigners([]);
+            fetchDocuments();
+
+            setTimeout(() => {
+                setShowUploadModal(false);
+                setSuccess('');
+            }, 1500);
+        } else {
+            setError(data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Gagal menyimpan dokumen.'));
         }
-    };
+    } catch (err) {
+        setError('Gagal menghubungi server database.');
+    } finally {
+        setUploading(false);
+    }
+};
 
     const handleUseTemplate = async (templateName) => {
         try {
             setLoading(true);
             await new Promise(r => setTimeout(r, 500));
-            // Just open modal with prefilled title
             setShowUploadModal(true);
             setFileTitle(templateName);
         } catch (err) {
@@ -144,7 +133,8 @@ export default function Documents() {
         if (!confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) return;
         try {
             const response = await fetch(`${API_URL}/api/documents/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include' // PERBAIKAN
             });
             if (response.ok) {
                 fetchDocuments();
@@ -157,31 +147,33 @@ export default function Documents() {
     };
 
     const handleVerifySubmit = async (e) => {
-        e.preventDefault();
-        if (!verifyFile) return;
+    e.preventDefault();
+    if (!verifyFile) return;
 
-        setVerifying(true);
-        setVerifyResult(null);
+    setVerifying(true);
+    setVerifyResult(null);
 
-        try {
-            await new Promise(r => setTimeout(r, 1000));
-            setVerifyResult({
-                verified: true,
-                title: verifyFile.name,
-                signer: 'Budi Santoso',
-                email: 'budi@lexa.com',
-                timestamp: new Date().toLocaleString(),
-                ca: 'LEXA Root CA'
-            });
-        } catch (err) {
-            setVerifyResult({
-                verified: false,
-                message: 'Gagal melakukan verifikasi dokumen.'
-            });
-        } finally {
-            setVerifying(false);
-        }
-    };
+    try {
+        const formData = new FormData();
+        formData.append('file', verifyFile);
+
+        const response = await fetch(`${API_URL}/api/documents/verify`, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        });
+
+        const data = await response.json();
+        setVerifyResult(data);
+    } catch (err) {
+        setVerifyResult({
+            verified: false,
+            message: 'Gagal menghubungi server verifikasi.'
+        });
+    } finally {
+        setVerifying(false);
+    }
+};
 
     const filteredDocs = documents.filter(doc => {
         const matchesSearch = doc.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -220,7 +212,6 @@ export default function Documents() {
                 <>
                     {/* Control Panel */}
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                        {/* Search and Filter */}
                         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                             <div className="relative w-full sm:w-64">
                                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -248,7 +239,6 @@ export default function Documents() {
                             </select>
                         </div>
 
-                        {/* Action buttons */}
                         <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
                             <button 
                                 onClick={() => setShowUploadModal(true)}
@@ -312,7 +302,7 @@ export default function Documents() {
                                     <tbody className="divide-y divide-slate-50">
                                         {filteredDocs.map((doc) => (
                                             <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="py-3.5 font-medium text-slate-800 max-w-[200px] truncate">{doc.title}</td>
+                                                <td className="py-3.5 font-medium text-slate-800 max-w-50 truncate">{doc.title}</td>
                                                 <td className="py-3.5 text-slate-500">{doc.type}</td>
                                                 <td className="py-3.5 text-slate-500 font-medium">{doc.uploaded_by?.name || 'Administrator'}</td>
                                                 <td className="py-3.5">
@@ -326,18 +316,16 @@ export default function Documents() {
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 text-slate-500 text-[10px]">
-                                                    {doc.target_signers ? (
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {doc.target_signers.map((ts, i) => (
-                                                                <span key={i} className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${ts.status === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                                                                    {ts.email.split('@')[0]}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    ) : doc.target_signer_email ? (
-                                                        doc.target_signer_email
-                                                    ) : '-'}
-                                                </td>
+    {doc.signatures && doc.signatures.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+            {doc.signatures.map((sig, i) => (
+                <span key={i} className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${sig.signed_at ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                    {sig.signer?.name || sig.signer?.email?.split('@')[0] || '-'}
+                </span>
+            ))}
+        </div>
+    ) : '-'}
+</td>
                                                 <td className="py-3.5 text-right">
                                                     <button 
                                                         onClick={() => handleDelete(doc.id)}
@@ -399,7 +387,7 @@ export default function Documents() {
                     </div>
 
                     {/* Result */}
-                    <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm min-h-[300px] flex flex-col justify-between">
+                    <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm min-h-75 flex flex-col justify-between">
                         {!verifyResult ? (
                             <div className="my-auto text-center text-slate-400 text-xs py-8 font-sans">
                                 Hasil verifikasi dokumen Anda akan ditampilkan di sini setelah proses analisis selesai.
@@ -407,7 +395,7 @@ export default function Documents() {
                         ) : verifyResult.verified ? (
                             <div className="space-y-4 text-left">
                                 <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl flex items-start space-x-2">
-                                    <CheckCircle size={20} weight="fill" className="flex-shrink-0 text-emerald-600 mt-0.5" />
+                                    <CheckCircle size={20} weight="fill" className="shrink-0 text-emerald-600 mt-0.5" />
                                     <div>
                                         <h4 className="text-xs font-bold font-outfit">Dokumen Terverifikasi Sah!</h4>
                                         <p className="text-[10px] text-emerald-700/80 mt-0.5 leading-relaxed font-sans">
@@ -418,7 +406,7 @@ export default function Documents() {
                                 <div className="divide-y divide-slate-100 text-[11px] font-sans">
                                     <div className="py-2.5 flex justify-between">
                                         <span className="text-slate-400">Judul Dokumen</span>
-                                        <span className="font-semibold text-slate-800 text-right max-w-[200px] truncate">{verifyResult.title}</span>
+                                        <span className="font-semibold text-slate-800 text-right max-w-50 truncate">{verifyResult.title}</span>
                                     </div>
                                     <div className="py-2.5 flex justify-between">
                                         <span className="text-slate-400">Penanda Tangan</span>
@@ -434,14 +422,14 @@ export default function Documents() {
                                     </div>
                                     <div className="py-2.5 flex justify-between">
                                         <span className="text-slate-400">Otoritas Otorisasi (CA)</span>
-                                        <span className="font-semibold text-slate-800 text-right text-indigo-600">{verifyResult.ca}</span>
+                                        <span className="font-semibold text-slate-800 text-right">{verifyResult.ca}</span>
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-4 text-left">
                                 <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl flex items-start space-x-2">
-                                    <XCircle size={20} weight="fill" className="flex-shrink-0 text-rose-600 mt-0.5" />
+                                    <XCircle size={20} weight="fill" className="shrink-0 text-rose-600 mt-0.5" />
                                     <div>
                                         <h4 className="text-xs font-bold font-outfit">Verifikasi Gagal</h4>
                                         <p className="text-[10px] text-rose-700/80 mt-0.5 leading-relaxed font-sans">

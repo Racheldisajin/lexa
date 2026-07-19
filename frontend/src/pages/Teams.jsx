@@ -10,7 +10,6 @@ import {
     Info 
 } from '@phosphor-icons/react';
 
-
 export default function Teams() {
     const { user } = useAuth();
     const [teams, setTeams] = useState([]);
@@ -18,12 +17,10 @@ export default function Teams() {
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [loading, setLoading] = useState(true);
     
-    // Create team modal state
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newTeamName, setNewTeamName] = useState('');
     const [newTeamDesc, setNewTeamDesc] = useState('');
     
-    // Add member modal state
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState('');
     const [memberRole, setMemberRole] = useState('Member');
@@ -40,15 +37,17 @@ export default function Teams() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Load users
-            const usersRes = await fetch(`${API_URL}/api/auth/users`);
+            const usersRes = await fetch(`${API_URL}/api/auth/users`, {
+                credentials: 'include' // PERBAIKAN
+            });
             if (usersRes.ok) {
                 const allUsers = await usersRes.json();
                 setUsers(allUsers);
             }
 
-            // Load teams
-            const teamsRes = await fetch(`${API_URL}/api/teams`);
+            const teamsRes = await fetch(`${API_URL}/api/teams`, {
+                credentials: 'include' // PERBAIKAN
+            });
             if (teamsRes.ok) {
                 const storedTeams = await teamsRes.json();
                 setTeams(storedTeams);
@@ -72,124 +71,104 @@ export default function Teams() {
     }, [user]);
 
     const handleCreateTeam = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-        try {
-            const initialMembers = [{ id: user?.id || 1, name: user?.name || 'User', email: user?.email || 'user@lexa.com', pivot: { role: 'Leader' } }];
-            const response = await fetch(`${API_URL}/api/teams`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newTeamName, members: initialMembers })
-            });
+    try {
+        const response = await fetch(`${API_URL}/api/teams`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newTeamName, description: newTeamDesc })
+        });
 
-            if (response.ok) {
-                setSuccess('Tim berhasil dibuat!');
-                setNewTeamName('');
-                setNewTeamDesc('');
-                fetchData();
-                setTimeout(() => {
-                    setShowCreateModal(false);
-                    setSuccess('');
-                }, 1000);
-            } else {
-                setError('Gagal menyimpan tim ke database.');
-            }
-        } catch (err) {
-            setError('Gagal menghubungkan ke database server.');
+        if (response.ok) {
+            setSuccess('Tim berhasil dibuat!');
+            setNewTeamName('');
+            setNewTeamDesc('');
+            fetchData();
+            setTimeout(() => {
+                setShowCreateModal(false);
+                setSuccess('');
+            }, 1000);
+        } else {
+            setError('Gagal menyimpan tim ke database.');
         }
-    };
+    } catch (err) {
+        setError('Gagal menghubungkan ke database server.');
+    }
+};
 
-    const handleDeleteTeam = async (id) => {
-        if (!confirm('Apakah Anda yakin ingin menghapus tim ini beserta seluruh anggotanya?')) return;
-        try {
-            const response = await fetch(`${API_URL}/api/teams/${id}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                setSelectedTeam(null);
-                fetchData();
-            } else {
-                alert('Gagal menghapus tim dari database.');
-            }
-        } catch (err) {
-            alert('Gagal menghapus tim.');
+const handleDeleteTeam = async (id) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus tim ini beserta seluruh anggotanya?')) return;
+    try {
+        const response = await fetch(`${API_URL}/api/teams/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            setSelectedTeam(null);
+            fetchData();
+        } else {
+            alert('Gagal menghapus tim dari database.');
         }
-    };
+    } catch (err) {
+        alert('Gagal menghapus tim.');
+    }
+};
 
-    const handleAddMember = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+const handleAddMember = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-        try {
-            const userToAdd = users.find(u => u.id === parseInt(selectedUserId));
-            if (userToAdd) {
-                const isAlreadyMember = selectedTeam.members.some(m => m.id === userToAdd.id);
-                if (isAlreadyMember) {
-                    setError('User sudah terdaftar di tim ini.');
-                    return;
-                }
+    try {
+        const response = await fetch(`${API_URL}/api/teams/${selectedTeam.id}/members`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: selectedUserId, role: memberRole })
+        });
 
-                const updatedMembers = [
-                    ...selectedTeam.members,
-                    {
-                        id: userToAdd.id,
-                        name: userToAdd.name,
-                        email: userToAdd.email,
-                        pivot: { role: memberRole }
-                    }
-                ];
-
-                const response = await fetch(`${API_URL}/api/teams`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: selectedTeam.id, name: selectedTeam.name, members: updatedMembers })
-                });
-
-                if (response.ok) {
-                    setSuccess('Anggota berhasil ditambahkan ke tim!');
-                    setSelectedUserId('');
-                    fetchData();
-                    setTimeout(() => {
-                        setShowAddMemberModal(false);
-                        setSuccess('');
-                    }, 1000);
-                } else {
-                    setError('Gagal menambahkan anggota.');
-                }
-            }
-        } catch (err) {
-            setError('Gagal menambahkan anggota.');
+        const data = await response.json();
+        if (response.ok && data.success) {
+            setSuccess('Anggota berhasil ditambahkan ke tim!');
+            setSelectedUserId('');
+            fetchData();
+            setTimeout(() => {
+                setShowAddMemberModal(false);
+                setSuccess('');
+            }, 1000);
+        } else {
+            setError(data.message || 'Gagal menambahkan anggota.');
         }
-    };
+    } catch (err) {
+        setError('Gagal menambahkan anggota.');
+    }
+};
 
-    const handleRemoveMember = async (userId) => {
-        if (!confirm('Apakah Anda yakin ingin mengeluarkan anggota ini dari tim?')) return;
-        try {
-            const updatedMembers = selectedTeam.members.filter(m => m.id !== userId);
-            const response = await fetch(`${API_URL}/api/teams`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: selectedTeam.id, name: selectedTeam.name, members: updatedMembers })
-            });
-
-            if (response.ok) {
-                fetchData();
-            } else {
-                alert('Gagal mengeluarkan anggota.');
-            }
-        } catch (err) {
+const handleRemoveMember = async (userId) => {
+    if (!confirm('Apakah Anda yakin ingin mengeluarkan anggota ini dari tim?')) return;
+    try {
+        const response = await fetch(`${API_URL}/api/teams/${selectedTeam.id}/members/${userId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            fetchData();
+        } else {
             alert('Gagal mengeluarkan anggota.');
         }
-    };
+    } catch (err) {
+        alert('Gagal mengeluarkan anggota.');
+    }
+};
 
     return (
         <div className="p-8 space-y-6 max-w-7xl mx-auto dot-pattern">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 
-                {/* Left Side: Teams list */}
                 <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
@@ -241,8 +220,7 @@ export default function Teams() {
                     )}
                 </div>
 
-                {/* Right Side: Team details & Members */}
-                <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm lg:col-span-2 min-h-[400px] flex flex-col">
+                <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm lg:col-span-2 min-h-100 flex flex-col">
                     {!selectedTeam ? (
                         <div className="my-auto text-center text-slate-400 text-xs py-8">
                             <Info size={32} className="mx-auto text-slate-300 mb-2" />
@@ -251,7 +229,6 @@ export default function Teams() {
                     ) : (
                         <div className="space-y-6 flex-1 flex flex-col justify-between">
                             <div>
-                                {/* Team Header */}
                                 <div className="flex justify-between items-start border-b border-slate-100 pb-4">
                                     <div>
                                         <h3 className="text-sm font-bold text-slate-800 font-outfit">{selectedTeam.name}</h3>
@@ -266,7 +243,6 @@ export default function Teams() {
                                     </button>
                                 </div>
 
-                                {/* Members Table */}
                                 <div className="mt-4">
                                     <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Anggota Tim ({selectedTeam.members?.length || 0})</h4>
                                     <div className="overflow-x-auto">
@@ -325,7 +301,6 @@ export default function Teams() {
 
             </div>
 
-            {/* Create Team Modal */}
             {showCreateModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
@@ -387,7 +362,6 @@ export default function Teams() {
                 </div>
             )}
 
-            {/* Add Member Modal */}
             {showAddMemberModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
